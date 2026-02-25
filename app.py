@@ -1,17 +1,23 @@
 import os
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_2026'
 
+# Configuración de base de datos optimizada
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'sqlite:///local.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"sslmode": "prefer"}}
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+    "connect_args": {"sslmode": "prefer"} if uri else {}
+}
 
 db = SQLAlchemy(app)
 
@@ -21,31 +27,32 @@ class Partido(db.Model):
     alcalde = db.Column(db.String(100))
     ciudad = db.Column(db.String(50))
 
-# EJECUCIÓN ÚNICA AL ARRANCAR PARA EVITAR TIMEOUT
-with app.app_context():
-    db.create_all()
-    if not Partido.query.first():
-        datos = [
-            ["FRI", "Rene Roberto Mamani", "ORURO"], ["LEAL", "Ademar Willcarani", "ORURO"],
-            ["NGP", "Iván Quispe", "ORURO"], ["AORA", "Santiago Condori", "ORURO"],
-            ["UN", "Enrique Urquidi", "ORURO"], ["AUPP", "Juan Carlos Choque", "ORURO"],
-            ["UCS", "Lino Marcos Main", "ORURO"], ["BST", "Edgar Rafael Bazán", "ORURO"],
-            ["SUMATE", "Oscar Miguel Toco", "ORURO"], ["MTS", "Oliver Oscar Poma", "ORURO"],
-            ["PATRIA", "Rafael Vargas", "ORURO"], ["LIBRE", "Rene Benjamin Guzman", "ORURO"],
-            ["PP", "Carlos Aguilar", "ORURO"], ["SOMOS ORURO", "Marcelo Cortez", "ORURO"],
-            ["JACHA", "Marcelo Medina", "ORURO"], ["Jallalla", "Jhonny Plata", "LA PAZ"],
-            ["ASP", "Xavier Iturralde", "LA PAZ"], ["Venceremos", "Waldo Albarracín", "LA PAZ"],
-            ["Somos La Paz", "Miguel Roca", "LA PAZ"], ["UPC", "Luis Eduardo Siles", "LA PAZ"],
-            ["Libre", "Carlos Palenque", "LA PAZ"], ["A-UPP", "Isaac Fernández", "LA PAZ"],
-            ["Innovación Humana", "César Dockweiler", "LA PAZ"], ["VIDA", "Fernando Valencia", "LA PAZ"],
-            ["FRI", "Raúl Daza", "LA PAZ"], ["PDC", "Mario Silva", "LA PAZ"],
-            ["MTS", "Jorge Dulon", "LA PAZ"], ["NGP", "Hernán Rivera", "LA PAZ"],
-            ["MPS", "Ricardo Cuevas", "LA PAZ"], ["APB-Súmate", "Óscar Sogliano", "LA PAZ"],
-            ["Alianza Patria", "Carlos Rivera", "LA PAZ"], ["Suma por el Bien Común", "Iván Arias", "LA PAZ"]
-        ]
-        for d in datos:
-            db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad=d[2]))
-        db.session.commit()
+# Inicialización segura
+def init_db():
+    with app.app_context():
+        db.create_all()
+        if not Partido.query.first():
+            datos = [
+                ["FRI", "Rene Roberto Mamani", "ORURO"], ["LEAL", "Ademar Willcarani", "ORURO"],
+                ["NGP", "Iván Quispe", "ORURO"], ["AORA", "Santiago Condori", "ORURO"],
+                ["UN", "Enrique Urquidi", "ORURO"], ["AUPP", "Juan Carlos Choque", "ORURO"],
+                ["UCS", "Lino Marcos Main", "ORURO"], ["BST", "Edgar Rafael Bazán", "ORURO"],
+                ["SUMATE", "Oscar Miguel Toco", "ORURO"], ["MTS", "Oliver Oscar Poma", "ORURO"],
+                ["PATRIA", "Rafael Vargas", "ORURO"], ["LIBRE", "Rene Benjamin Guzman", "ORURO"],
+                ["PP", "Carlos Aguilar", "ORURO"], ["SOMOS ORURO", "Marcelo Cortez", "ORURO"],
+                ["JACHA", "Marcelo Medina", "ORURO"], ["Jallalla", "Jhonny Plata", "LA PAZ"],
+                ["ASP", "Xavier Iturralde", "LA PAZ"], ["Venceremos", "Waldo Albarracín", "LA PAZ"],
+                ["Somos La Paz", "Miguel Roca", "LA PAZ"], ["UPC", "Luis Eduardo Siles", "LA PAZ"],
+                ["Libre", "Carlos Palenque", "LA PAZ"], ["A-UPP", "Isaac Fernández", "LA PAZ"],
+                ["Innovación Humana", "César Dockweiler", "LA PAZ"], ["VIDA", "Fernando Valencia", "LA PAZ"],
+                ["FRI", "Raúl Daza", "LA PAZ"], ["PDC", "Mario Silva", "LA PAZ"],
+                ["MTS", "Jorge Dulon", "LA PAZ"], ["NGP", "Hernán Rivera", "LA PAZ"],
+                ["MPS", "Ricardo Cuevas", "LA PAZ"], ["APB-Súmate", "Óscar Sogliano", "LA PAZ"],
+                ["Alianza Patria", "Carlos Rivera", "LA PAZ"], ["Suma por el Bien Común", "Iván Arias", "LA PAZ"]
+            ]
+            for d in datos:
+                db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad=d[2]))
+            db.session.commit()
 
 @app.route('/')
 def index():
@@ -62,5 +69,9 @@ def confirmar_voto():
     partido = Partido.query.get(p_id)
     return f"VOTO REGISTRADO: {partido.nombre}"
 
+# El arranque del servidor llama a la inicialización antes de empezar a escuchar
+init_db()
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
