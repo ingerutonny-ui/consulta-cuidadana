@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -21,33 +21,35 @@ class Partido(db.Model):
     alcalde = db.Column(db.String(100))
     ciudad = db.Column(db.String(50))
 
+# EJECUCIÓN ÚNICA AL ARRANCAR PARA EVITAR TIMEOUT
+with app.app_context():
+    db.create_all()
+    if not Partido.query.first():
+        datos = [
+            ["FRI", "Rene Roberto Mamani", "ORURO"], ["LEAL", "Ademar Willcarani", "ORURO"],
+            ["NGP", "Iván Quispe", "ORURO"], ["AORA", "Santiago Condori", "ORURO"],
+            ["UN", "Enrique Urquidi", "ORURO"], ["AUPP", "Juan Carlos Choque", "ORURO"],
+            ["UCS", "Lino Marcos Main", "ORURO"], ["BST", "Edgar Rafael Bazán", "ORURO"],
+            ["SUMATE", "Oscar Miguel Toco", "ORURO"], ["MTS", "Oliver Oscar Poma", "ORURO"],
+            ["PATRIA", "Rafael Vargas", "ORURO"], ["LIBRE", "Rene Benjamin Guzman", "ORURO"],
+            ["PP", "Carlos Aguilar", "ORURO"], ["SOMOS ORURO", "Marcelo Cortez", "ORURO"],
+            ["JACHA", "Marcelo Medina", "ORURO"], ["Jallalla", "Jhonny Plata", "LA PAZ"],
+            ["ASP", "Xavier Iturralde", "LA PAZ"], ["Venceremos", "Waldo Albarracín", "LA PAZ"],
+            ["Somos La Paz", "Miguel Roca", "LA PAZ"], ["UPC", "Luis Eduardo Siles", "LA PAZ"],
+            ["Libre", "Carlos Palenque", "LA PAZ"], ["A-UPP", "Isaac Fernández", "LA PAZ"],
+            ["Innovación Humana", "César Dockweiler", "LA PAZ"], ["VIDA", "Fernando Valencia", "LA PAZ"],
+            ["FRI", "Raúl Daza", "LA PAZ"], ["PDC", "Mario Silva", "LA PAZ"],
+            ["MTS", "Jorge Dulon", "LA PAZ"], ["NGP", "Hernán Rivera", "LA PAZ"],
+            ["MPS", "Ricardo Cuevas", "LA PAZ"], ["APB-Súmate", "Óscar Sogliano", "LA PAZ"],
+            ["Alianza Patria", "Carlos Rivera", "LA PAZ"], ["Suma por el Bien Común", "Iván Arias", "LA PAZ"]
+        ]
+        for d in datos:
+            db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad=d[2]))
+        db.session.commit()
+
 @app.route('/')
 def index():
-    try:
-        db.create_all()
-        # Solo inserta si la tabla está vacía para no saturar el arranque
-        if not Partido.query.first():
-            oruro = [
-                ["FRI", "Rene Roberto Mamani"], ["LEAL", "Ademar Willcarani"], ["NGP", "Iván Quispe"],
-                ["AORA", "Santiago Condori"], ["UN", "Enrique Urquidi"], ["AUPP", "Juan Carlos Choque"],
-                ["UCS", "Lino Marcos Main"], ["BST", "Edgar Rafael Bazán"], ["SUMATE", "Oscar Miguel Toco"],
-                ["MTS", "Oliver Oscar Poma"], ["PATRIA", "Rafael Vargas"], ["LIBRE", "Rene Benjamin Guzman"],
-                ["PP", "Carlos Aguilar"], ["SOMOS ORURO", "Marcelo Cortez"], ["JACHA", "Marcelo Medina"]
-            ]
-            lapaz = [
-                ["Jallalla", "Jhonny Plata"], ["ASP", "Xavier Iturralde"], ["Venceremos", "Waldo Albarracín"],
-                ["Somos La Paz", "Miguel Roca"], ["UPC", "Luis Eduardo Siles"], ["Libre", "Carlos Palenque"],
-                ["A-UPP", "Isaac Fernández"], ["Innovación Humana", "César Dockweiler"], ["VIDA", "Fernando Valencia"],
-                ["FRI", "Raúl Daza"], ["PDC", "Mario Silva"], ["MTS", "Jorge Dulon"], ["NGP", "Hernán Rivera"],
-                ["MPS", "Ricardo Cuevas"], ["APB-Súmate", "Óscar Sogliano"], ["Alianza Patria", "Carlos Rivera"],
-                ["Suma por el Bien Común", "Iván Arias"]
-            ]
-            for d in oruro: db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad="ORURO"))
-            for d in lapaz: db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad="LA PAZ"))
-            db.session.commit()
-        return render_template('index.html', mensaje="SISTEMA LISTO")
-    except Exception as e:
-        return f"Error: {str(e)}"
+    return render_template('index.html', mensaje="SISTEMA LISTO")
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
