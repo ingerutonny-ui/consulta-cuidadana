@@ -14,7 +14,7 @@ if uri and uri.startswith("postgres://"):
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Ajuste para compatibilidad con dispositivos antiguos (Tabletas)
+# Compatibilidad para tabletas Samsung y navegadores antiguos
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "connect_args": {
         "sslmode": "prefer"
@@ -43,26 +43,61 @@ class Partido(db.Model):
 @app.route('/')
 def index():
     try:
-        # FORZAMOS REINICIO PARA CARGAR LOS 15 PARTIDOS NUEVOS
         db.drop_all() 
         db.create_all()
         
         partidos_lista = []
-        ciudades = ["ORURO", "LA PAZ"]
-        
-        for ciudad in ciudades:
-            for i in range(1, 16):
-                partidos_lista.append(Partido(
-                    nombre=f"PARTIDO {i}", 
-                    alcalde=f"Candidato Alcalde {i}", 
-                    concejal=f"Candidato Concejal {i}", 
-                    ciudad=ciudad
-                ))
+
+        # 1. CANDIDATOS REALES - ORURO (Del PDF proporcionado)
+        oruro_data = [
+            {"p": "FRI", "a": "Rene Roberto Mamani Llave"},
+            {"p": "LEAL", "a": "Adhemar Willcarani Morales"},
+            {"p": "NGP", "a": "Iván Quispe Gutiérrez"},
+            {"p": "AORA", "a": "Santiago Condori Apaza"},
+            {"p": "UN", "a": "Enrique Fernando Urquidi Daza"},
+            {"p": "AUPP", "a": "Juan Carlos Choque Zubieta"},
+            {"p": "UCS", "a": "Lino Marcos Main Adrián"},
+            {"p": "BST", "a": "Edgar Rafael Bazán Ortega"},
+            {"p": "SUMATE", "a": "Oscar Miguel Toco Choque"},
+            {"p": "MTS", "a": "Oliver Oscar Poma Cartagena"},
+            {"p": "PATRIA", "a": "Rafael Vargas Villegas"},
+            {"p": "LIBRE", "a": "Rene Benjamin Guzman Vargas"},
+            {"p": "PP", "a": "Carlos Aguilar"},
+            {"p": "SOMOS ORURO", "a": "Marcelo Cortez Gutiérrez"},
+            {"p": "JACHA", "a": "Marcelo Fernando Medina Centellas"}
+        ]
+
+        # 2. CANDIDATOS REALES - LA PAZ (De tu lista proporcionada)
+        lapaz_data = [
+            {"p": "Jallalla", "a": "Jhonny Plata"},
+            {"p": "ASP", "a": "Xavier Iturralde"},
+            {"p": "Venceremos", "a": "Waldo Albarracín"},
+            {"p": "Somos La Paz", "a": "Miguel Roca"},
+            {"p": "UPC", "a": "Luis Eduardo 'Chichi' Siles"},
+            {"p": "Libre", "a": "Carlos 'Cae' Palenque"},
+            {"p": "A-UPP", "a": "Isaac Fernández"},
+            {"p": "Innovación Humana", "a": "César Dockweiler"},
+            {"p": "VIDA", "a": "Fernando Valencia"},
+            {"p": "FRI", "a": "Raúl Daza"},
+            {"p": "PDC", "a": "Mario Silva"},
+            {"p": "MTS", "a": "Jorge Dulon"},
+            {"p": "NGP", "a": "Hernán Rodrigo Rivera"},
+            {"p": "MPS", "a": "Ricardo Cuevas"},
+            {"p": "APB-Súmate", "a": "Óscar Sogliano"},
+            {"p": "Alianza Patria", "a": "Carlos Nemo Rivera"},
+            {"p": "Suma por el Bien Común", "a": "Iván Arias"}
+        ]
+
+        for i, c in enumerate(oruro_data, 1):
+            partidos_lista.append(Partido(nombre=c["p"], alcalde=c["a"], concejal=f"Concejal {i}", ciudad="ORURO"))
+
+        for i, c in enumerate(lapaz_data, 1):
+            partidos_lista.append(Partido(nombre=c["p"], alcalde=c["a"], concejal=f"Concejal {i}", ciudad="LA PAZ"))
         
         db.session.bulk_save_objects(partidos_lista)
         db.session.commit()
         
-        return render_template('index.html', mensaje="SISTEMA REINICIADO - 15 PARTIDOS LISTOS")
+        return render_template('index.html', mensaje="SISTEMA ACTUALIZADO - LA PAZ Y ORURO LISTOS")
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -82,21 +117,17 @@ def confirmar_voto():
 def registrar_voto():
     ci = request.form.get('ci')
     partido_id = request.form.get('partido_id')
-    
     votante = Votante.query.get(ci)
     if votante and votante.ya_voto:
         return render_template('error.html', mensaje="Usted ya emitió su voto.")
-    
     if not votante:
         votante = Votante(ci=ci, ya_voto=True)
         db.session.add(votante)
     else:
         votante.ya_voto = True
-        
     partido = Partido.query.get(partido_id)
     partido.votos_alcalde += 1
     partido.votos_concejal += 1
-    
     db.session.commit()
     return render_template('exito.html')
 
