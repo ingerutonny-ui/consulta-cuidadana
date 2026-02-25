@@ -34,7 +34,7 @@ class Partido(db.Model):
 @app.route('/')
 def index():
     try:
-        # ESTO BORRA TODO LO ANTERIOR Y CREA LO NUEVO
+        # Lógica de base de datos (Reseteo para desarrollo)
         db.drop_all() 
         db.create_all()
         
@@ -54,7 +54,13 @@ def index():
         
         db.session.bulk_save_objects(partidos_lista)
         db.session.commit()
-        return f"CONSULTA CIUDADANA: Base de datos reseteada. 30 partidos cargados correctamente."
+        
+        # Parámetros para el Frontend
+        github_user = "ingerutonny-ui"
+        mensaje = "Base de datos reseteada y partidos cargados correctamente."
+        
+        return render_template('index.html', mensaje=mensaje, github_user=github_user)
+        
     except Exception as e:
         return f"Error en el sistema: {str(e)}"
 
