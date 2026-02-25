@@ -4,45 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SISTEMA DE VOTACIÓN ONLINE</title>
-    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Pantalla de carga (Splash Screen) */
+        /* Pantalla de carga: Logo centrado */
         #splash {
             position: fixed;
             top: 0; left: 0;
-            width: 100%; height: 100%;
+            width: 100vw; height: 100vh;
             background-color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s ease;
         }
         #splash img {
-            max-width: 300px;
-            animation: pulse 1.5s infinite;
+            max-width: 250px;
+            height: auto;
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        /* Ocultar contenido principal al inicio */
+        /* Contenido oculto al inicio */
         #main-content {
-            display: none;
+            display: none !important;
+        }
+        /* Clase para mostrar el contenido después */
+        .show-content {
+            display: block !important;
         }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <img src="static/img/accion.png" alt="Logo Acción Liberal">
+        <img src="{{ url_for('static', filename='img/accion.png') }}" alt="Cargando...">
     </div>
 
     <div id="main-content">
         <div class="container">
             <header>
-                <img src="static/img/accion.png" alt="Logo" class="logo">
+                <img src="{{ url_for('static', filename='img/accion.png') }}" alt="Logo" class="logo">
                 <h1>SISTEMA DE VOTACIÓN ONLINE</h1>
             </header>
             
@@ -54,7 +52,7 @@
                 <section class="partidos">
                     {% for partido in partidos %}
                     <div class="partido-card">
-                        <img src="static/img/{{ partido.logo }}" alt="{{ partido.nombre }}">
+                        <img src="{{ url_for('static', filename='img/' + partido.logo) }}" alt="{{ partido.nombre }}">
                         <h3>{{ partido.nombre }}</h3>
                     </div>
                     {% endfor %}
@@ -64,17 +62,13 @@
     </div>
 
     <script>
-        // Temporizador de 3 segundos exactos
-        setTimeout(() => {
-            const splash = document.getElementById('splash');
-            const main = document.getElementById('main-content');
-            
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                main.style.display = 'block';
-            }, 500);
-        }, 3000);
+        // Lógica de 3 segundos
+        window.onload = function() {
+            setTimeout(function() {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('main-content').classList.add('show-content');
+            }, 3000);
+        };
     </script>
 </body>
 </html>
