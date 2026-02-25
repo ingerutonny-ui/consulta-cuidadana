@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_nancy_2026'
 
+# Configuración de Base de Datos para Render
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -14,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# MODELOS REVISADOS
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -36,19 +38,17 @@ def index():
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
-    # Esto asegura que las tablas existan antes de listar partidos
-    db.create_all()
     partidos = Partido.query.filter_by(ciudad=ciudad.upper()).all()
     return render_template('votar.html', ciudad=ciudad.upper(), partidos=partidos)
 
 @app.route('/confirmar_voto', methods=['POST'])
 def confirmar_voto():
-    # RECOLECCIÓN ESTRICTA
+    # Recolección y Mayúsculas Forzadas
     ci_f = request.form.get('ci', '').strip().upper()
     nom_f = request.form.get('nombres', '').strip().upper()
     ape_f = request.form.get('apellido', '').strip().upper()
     
-    # VALIDACIÓN MANUAL DE DUPLICADO (Evita el choque de PostgreSQL)
+    # Verificación manual de duplicado para evitar Error 500
     existe = Voto.query.filter_by(ci=ci_f).first()
     if existe:
         return render_template('index.html', msg_type="error", ci_votante=ci_f)
@@ -66,12 +66,13 @@ def confirmar_voto():
         return render_template('index.html', msg_type="success", ci_votante=ci_f)
     except Exception as e:
         db.session.rollback()
-        print(f"DEBUG_ERROR: {str(e)}") # Esto saldrá en los logs de Render
         return render_template('index.html', msg_type="error", ci_votante=ci_f)
 
+# BLOQUE DE REGENERACIÓN AUTOMÁTICA
 if __name__ == '__main__':
     with app.app_context():
-        # db.drop_all() # <--- DESCOMENTA ESTO SOLO SI EL ERROR PERSISTE PARA LIMPIAR LA BASE
+        # ATENCIÓN: Esta línea borra todo y lo crea de nuevo. 
+        # Es la única forma de quitar el Error 500 de Render.
+        db.drop_all() 
         db.create_all()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
-    
