@@ -6,7 +6,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_secret'
 
-# --- CONFIGURACIÓN DE BASE DE DATOS Y SEGURIDAD ---
+# --- CONFIGURACIÓN DE BASE DE DATOS ---
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -14,7 +14,7 @@ if uri and uri.startswith("postgres://"):
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Compatibilidad para tabletas Samsung y navegadores antiguos
+# FLEXIBILIDAD PARA DISPOSITIVOS ANTIGUOS
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "connect_args": {
         "sslmode": "prefer"
@@ -43,68 +43,18 @@ class Partido(db.Model):
 @app.route('/')
 def index():
     try:
-        db.drop_all() 
+        # Se mantiene la carga de datos que ya aprobaste
         db.create_all()
-        
-        partidos_lista = []
-
-        # 1. CANDIDATOS REALES - ORURO (Del PDF proporcionado)
-        oruro_data = [
-            {"p": "FRI", "a": "Rene Roberto Mamani Llave"},
-            {"p": "LEAL", "a": "Adhemar Willcarani Morales"},
-            {"p": "NGP", "a": "Iván Quispe Gutiérrez"},
-            {"p": "AORA", "a": "Santiago Condori Apaza"},
-            {"p": "UN", "a": "Enrique Fernando Urquidi Daza"},
-            {"p": "AUPP", "a": "Juan Carlos Choque Zubieta"},
-            {"p": "UCS", "a": "Lino Marcos Main Adrián"},
-            {"p": "BST", "a": "Edgar Rafael Bazán Ortega"},
-            {"p": "SUMATE", "a": "Oscar Miguel Toco Choque"},
-            {"p": "MTS", "a": "Oliver Oscar Poma Cartagena"},
-            {"p": "PATRIA", "a": "Rafael Vargas Villegas"},
-            {"p": "LIBRE", "a": "Rene Benjamin Guzman Vargas"},
-            {"p": "PP", "a": "Carlos Aguilar"},
-            {"p": "SOMOS ORURO", "a": "Marcelo Cortez Gutiérrez"},
-            {"p": "JACHA", "a": "Marcelo Fernando Medina Centellas"}
-        ]
-
-        # 2. CANDIDATOS REALES - LA PAZ (De tu lista proporcionada)
-        lapaz_data = [
-            {"p": "Jallalla", "a": "Jhonny Plata"},
-            {"p": "ASP", "a": "Xavier Iturralde"},
-            {"p": "Venceremos", "a": "Waldo Albarracín"},
-            {"p": "Somos La Paz", "a": "Miguel Roca"},
-            {"p": "UPC", "a": "Luis Eduardo 'Chichi' Siles"},
-            {"p": "Libre", "a": "Carlos 'Cae' Palenque"},
-            {"p": "A-UPP", "a": "Isaac Fernández"},
-            {"p": "Innovación Humana", "a": "César Dockweiler"},
-            {"p": "VIDA", "a": "Fernando Valencia"},
-            {"p": "FRI", "a": "Raúl Daza"},
-            {"p": "PDC", "a": "Mario Silva"},
-            {"p": "MTS", "a": "Jorge Dulon"},
-            {"p": "NGP", "a": "Hernán Rodrigo Rivera"},
-            {"p": "MPS", "a": "Ricardo Cuevas"},
-            {"p": "APB-Súmate", "a": "Óscar Sogliano"},
-            {"p": "Alianza Patria", "a": "Carlos Nemo Rivera"},
-            {"p": "Suma por el Bien Común", "a": "Iván Arias"}
-        ]
-
-        for i, c in enumerate(oruro_data, 1):
-            partidos_lista.append(Partido(nombre=c["p"], alcalde=c["a"], concejal=f"Concejal {i}", ciudad="ORURO"))
-
-        for i, c in enumerate(lapaz_data, 1):
-            partidos_lista.append(Partido(nombre=c["p"], alcalde=c["a"], concejal=f"Concejal {i}", ciudad="LA PAZ"))
-        
-        db.session.bulk_save_objects(partidos_lista)
-        db.session.commit()
-        
-        return render_template('index.html', mensaje="SISTEMA ACTUALIZADO - LA PAZ Y ORURO LISTOS")
+        return render_template('index.html', mensaje="SISTEMA ACTIVO")
     except Exception as e:
         return f"Error: {str(e)}"
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
     partidos = Partido.query.filter_by(ciudad=ciudad).order_by(Partido.id).all()
-    return render_template('votar.html', ciudad=ciudad, partidos=partidos)
+    # Pasamos el nombre de la ciudad en corto para los archivos (OR, LP)
+    prefijo = "OR" if ciudad == "ORURO" else "LP"
+    return render_template('votar.html', ciudad=ciudad, partidos=partidos, prefijo=prefijo)
 
 @app.route('/confirmar_voto', methods=['POST'])
 def confirmar_voto():
