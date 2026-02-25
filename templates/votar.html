@@ -1,56 +1,125 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPELETA ELECTORAL - {{ ciudad }}</title>
+    <style>
+        body { 
+            background: #bdbdbd; 
+            font-family: 'Arial Narrow', Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px 10px;
+        }
+        .papeleta-oficial {
+            background: #fdfaf3;
+            border: 12px double #333;
+            padding: 25px;
+            width: 100%;
+            max-width: 1200px;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.2);
+        }
+        header {
+            text-align: center;
+            border-bottom: 5px solid #333;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+        }
+        .grid-voto {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+        .espacio-voto {
+            border: 3px solid #000;
+            height: 380px;
+            background-color: #fff;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.1s;
+        }
+        .espacio-voto:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        /* ESTO CARGA TU DISEÑO DE FONDO */
+        .fondo-diseno {
+            flex-grow: 1;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .franja-nombre {
+            background: #eee;
+            border-top: 2px solid #000;
+            padding: 8px 2px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .partido-txt { font-weight: 900; font-size: 0.9rem; text-transform: uppercase; color: #d32f2f; }
+        .alcalde-txt { font-size: 0.75rem; font-weight: bold; line-height: 1.1; margin-top: 4px; }
+        
+        .marca-x {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 35px;
+            height: 35px;
+            border: 3px solid #000;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: transparent;
+        }
+        .espacio-voto:active .marca-x { color: #d32f2f; }
 
-app = Flask(__name__)
-app.secret_key = 'consulta_ciudadana_secret'
+        @media (max-width: 1000px) { .grid-voto { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 600px) { .grid-voto { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
 
-# --- CONFIGURACIÓN DB ---
-uri = os.environ.get('DATABASE_URL')
-if uri and uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"sslmode": "prefer"}}
+<div class="papeleta-oficial">
+    <header>
+        <h1 style="margin:0; letter-spacing: 2px;">ELECCIONES MUNICIPALES 2026</h1>
+        <div style="background:#333; color:#fff; padding:5px 30px; display:inline-block; font-weight:bold; margin-top:10px;">
+            MUNICIPIO DE {{ ciudad }}
+        </div>
+    </header>
 
-db = SQLAlchemy(app)
+    <form action="/confirmar_voto" method="POST">
+        <input type="hidden" name="ciudad" value="{{ ciudad }}">
+        <div class="grid-voto">
+            {% for p in partidos %}
+            <div class="espacio-voto" onclick="document.getElementById('btn_{{p.id}}').click()">
+                
+                <div class="fondo-diseno" 
+                     style="background-image: url('/static/{{ prefijo }}-{{ p.nombre.upper().replace(' ', '') }}.png');">
+                </div>
 
-# --- MODELOS ---
-class Votante(db.Model):
-    ci = db.Column(db.String(20), primary_key=True)
-    ciudad = db.Column(db.String(50))
-    ya_voto = db.Column(db.Boolean, default=False)
+                <div class="marca-x">X</div>
 
-class Partido(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    alcalde = db.Column(db.String(100), nullable=False)
-    concejal = db.Column(db.String(100), nullable=False)
-    ciudad = db.Column(db.String(50), nullable=False)
-    votos_alcalde = db.Column(db.Integer, default=0)
+                <div class="franja-nombre">
+                    <div class="partido-txt">{{ p.nombre }}</div>
+                    <div class="alcalde-txt">{{ p.alcalde }}</div>
+                </div>
 
-@app.route('/')
-def index():
-    try:
-        db.create_all()
-        # Aquí ya están cargados los 15 de Oruro y 17 de La Paz según los chats anteriores
-        return render_template('index.html', mensaje="SISTEMA LISTO")
-    except Exception as e:
-        return f"Error: {str(e)}"
+                <input type="submit" name="partido_id" value="{{ p.id }}" id="btn_{{p.id}}" style="display:none;">
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+</div>
 
-@app.route('/votar/<ciudad>')
-def votar(ciudad):
-    partidos = Partido.query.filter_by(ciudad=ciudad).order_by(Partido.id).all()
-    # PREFIJO AUTOMÁTICO: OR para Oruro, LP para La Paz
-    prefijo = "OR" if ciudad == "ORURO" else "LP"
-    return render_template('votar.html', ciudad=ciudad, partidos=partidos, prefijo=prefijo)
-
-@app.route('/confirmar_voto', methods=['POST'])
-def confirmar_voto():
-    p = Partido.query.get(request.form.get('partido_id'))
-    return render_template('confirmar.html', partido=p, ciudad=request.form.get('ciudad'))
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+</body>
+</html>
