@@ -6,15 +6,16 @@
     <title>VOTACIÓN - {{ ciudad }}</title>
     <style>
         body { 
-            background: radial-gradient(circle, #8b0000 0%, #000000 100%); 
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%); 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; padding: 20px; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
+            color: #333;
         }
 
         header { text-align: center; margin-bottom: 30px; }
-        h1 { color: white; letter-spacing: 4px; text-shadow: 0 0 15px rgba(217,4,41,0.5); margin: 0; }
-        .badge { background: #d90429; color: white; padding: 5px 25px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px; box-shadow: 0 0 15px rgba(217, 4, 41, 0.5); }
+        h1 { color: #222; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
+        .badge { background: #444; color: white; padding: 5px 25px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px; }
 
         .grid {
             display: grid;
@@ -22,80 +23,76 @@
             gap: 20px; max-width: 1400px; width: 100%;
         }
 
-        /* TARJETAS ESTILO NANCY */
         .tarjeta {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            height: 420px;
+            background: white;
+            border-radius: 12px;
+            height: 200px; /* Altura ajustada al no tener logo */
             position: relative;
             cursor: pointer;
             transition: 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #ccc;
             display: flex; flex-direction: column;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .tarjeta:hover { transform: translateY(-5px); border-color: #d90429; background: rgba(255, 255, 255, 0.1); }
-
-        .img-area { flex-grow: 1; background-size: contain; background-repeat: no-repeat; background-position: center; margin: 15px; }
+        .tarjeta:hover { transform: translateY(-5px); border-color: #666; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
 
         .votar-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #d90429; color: white; padding: 12px 30px; border-radius: 50px;
-            font-weight: 900; box-shadow: 0 0 25px #d90429; z-index: 5;
-            transition: 0.3s;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.05); color: #000; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; z-index: 5; opacity: 0; transition: 0.3s;
         }
 
-        /* EFECTO HOVER PARA PC */
-        @media (hover: hover) {
-            .votar-overlay { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            .tarjeta:hover .votar-overlay { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-        }
+        .tarjeta:hover .votar-overlay { opacity: 1; }
+
+        .info { text-align: center; padding: 15px; }
+        .p-nom { color: #d90429; font-weight: bold; font-size: 1.4rem; margin-bottom: 5px; }
+        .a-nom { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
 
         /* MODAL */
         #modalVoto {
             display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(255, 255, 255, 0.9);
             z-index: 1000; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: #1a1a1a;
-            padding: 30px;
-            border-radius: 20px;
-            border: 2px solid #d90429;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #ddd;
             width: 90%; max-width: 400px;
             text-align: center;
-            box-shadow: 0 0 40px rgba(217, 4, 41, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        .modal-content img { height: 100px; margin-bottom: 15px; object-fit: contain; }
+        h3 { color: #222; margin-bottom: 20px; letter-spacing: 1px; }
 
-        input {
-            width: 100%; padding: 14px; margin: 10px 0;
-            background: #222; border: 1px solid #444;
-            border-radius: 10px; color: white; font-size: 1rem;
+        input, select {
+            width: 100%; padding: 14px; margin: 8px 0;
+            background: #f9f9f9; border: 1px solid #ddd;
+            border-radius: 8px; color: #333; font-size: 1rem;
             box-sizing: border-box;
         }
 
-        input:focus { border-color: #d90429; outline: none; box-shadow: 0 0 10px rgba(217,4,41,0.3); }
+        input:focus { border-color: #d90429; outline: none; }
 
         .btn-confirmar {
-            background: #d90429; color: white; border: none;
-            padding: 16px; width: 100%; border-radius: 10px;
+            background: #222; color: white; border: none;
+            padding: 16px; width: 100%; border-radius: 8px;
             font-weight: bold; cursor: pointer; margin-top: 15px;
-            font-size: 1.1rem; transition: 0.2s;
+            font-size: 1rem; transition: 0.2s;
         }
 
-        .btn-confirmar:active { transform: scale(0.95); }
+        .btn-confirmar:hover { background: #d90429; }
 
-        .btn-cancelar { color: #888; cursor: pointer; display: block; margin-top: 20px; font-size: 0.9rem; text-decoration: underline; }
-
-        .info { padding: 12px; background: rgba(0,0,0,0.7); text-align: center; color: white; }
-        .p-nom { color: #ff4d4d; font-weight: bold; font-size: 1.1rem; }
-        .a-nom { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
+        .btn-cancelar { color: #999; cursor: pointer; display: block; margin-top: 20px; font-size: 0.85rem; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -107,10 +104,8 @@
 
     <div class="grid">
         {% for p in partidos %}
-            {% set img = 'OR-' + p.nombre + '.png' if ciudad == 'ORURO' else 'LP-' + p.nombre + '.png' %}
-            <div class="tarjeta" onclick="abrirModal('{{ p.id }}', '{{ p.nombre }}', '/static/{{ img }}')">
-                <div class="votar-overlay">VOTAR</div>
-                <div class="img-area" style="background-image: url('/static/{{ img }}');"></div>
+            <div class="tarjeta" onclick="abrirModal('{{ p.id }}', '{{ p.nombre }}')">
+                <div class="votar-overlay">PRESIONE PARA VOTAR</div>
                 <div class="info">
                     <div class="p-nom">{{ p.nombre }}</div>
                     <div class="a-nom">{{ p.alcalde }}</div>
@@ -121,44 +116,49 @@
 
     <div id="modalVoto">
         <div class="modal-content">
-            <img id="modal-logo" src="" alt="Logo">
-            <h3 style="color: white; margin-bottom: 5px; letter-spacing: 2px;">IDENTIFICACIÓN</h3>
-            <p id="modal-partido" style="color: #ff4d4d; font-weight: bold; margin-bottom: 20px;"></p>
+            <h3>REGISTRO DE VOTO</h3>
+            <p id="modal-partido" style="color: #d90429; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;"></p>
             
             <form action="/confirmar_voto" method="POST">
                 <input type="hidden" name="partido_id" id="form-p-id">
                 
                 <input type="text" name="apellido" placeholder="APELLIDOS" 
                        required maxlength="20" pattern="[A-Za-zñÑ\s]+" 
-                       title="Solo se permiten letras (Máximo 20)"
                        onkeyup="this.value = this.value.toUpperCase();">
                 
                 <input type="text" name="ci" placeholder="NÚMERO DE C.I." 
                        required maxlength="12" pattern="^[0-9]{5,10}[A-Za-z]{0,2}$"
-                       title="Ingrese solo números o números seguidos de su extensión (Ej: 1234567LP)"
                        onkeyup="this.value = this.value.toUpperCase();">
+
+                <div style="display: flex; gap: 10px;">
+                    <select name="genero" required>
+                        <option value="" disabled selected>GÉNERO</option>
+                        <option value="MASCULINO">MASCULINO</option>
+                        <option value="FEMENINO">FEMENINO</option>
+                        <option value="OTRO">OTRO</option>
+                    </select>
+                    <input type="number" name="edad" placeholder="EDAD" required min="18" max="120">
+                </div>
                 
-                <button type="submit" class="btn-confirmar">CONFIRMAR VOTO</button>
+                <button type="submit" class="btn-confirmar">CONFIRMAR MI VOTO</button>
             </form>
-            <span class="btn-cancelar" onclick="cerrarModal()">REGRESAR A LA PAPELETA</span>
+            <span class="btn-cancelar" onclick="cerrarModal()">CANCELAR Y VOLVER</span>
         </div>
     </div>
 
     <script>
-        function abrirModal(id, nombre, img) {
+        function abrirModal(id, nombre) {
             document.getElementById('form-p-id').value = id;
             document.getElementById('modal-partido').innerText = nombre;
-            document.getElementById('modal-logo').src = img;
             document.getElementById('modalVoto').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Bloquea scroll
+            document.body.style.overflow = 'hidden';
         }
 
         function cerrarModal() {
             document.getElementById('modalVoto').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Libera scroll
+            document.body.style.overflow = 'auto';
         }
 
-        // Cerrar con tecla Escape
         window.onkeydown = function(event) {
             if (event.key === "Escape") { cerrarModal(); }
         }
