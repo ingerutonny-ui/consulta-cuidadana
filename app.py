@@ -6,7 +6,6 @@ from sqlalchemy import func, text
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_2026'
 
-# Forzar limpieza de caché para dispositivos antiguos
 @app.after_request
 def add_header(response):
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
@@ -55,7 +54,6 @@ def confirmar_voto():
     ci = request.form.get('ci', '').strip().upper()
     nombres = request.form.get('nombres', '').strip().upper()
     
-    # BLOQUEO DE CI REPETIDO
     existe = Voto.query.filter_by(ci=ci).first()
     if existe:
         return render_template('index.html', msg_type="error", ci_votante=ci)
@@ -72,9 +70,9 @@ def confirmar_voto():
         db.session.add(nuevo)
         db.session.commit()
         return render_template('index.html', msg_type="success", ci_votante=ci)
-    except:
+    except Exception as e:
         db.session.rollback()
-        return render_template('index.html', mensaje="ERROR EN EL SISTEMA")
+        return render_template('index.html', mensaje="ERROR AL PROCESAR")
 
 def seed_data():
     if not Partido.query.first():
