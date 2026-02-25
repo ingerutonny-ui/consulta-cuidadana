@@ -32,6 +32,8 @@ class Voto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ci = db.Column(db.String(15), unique=True, nullable=False)
     apellido = db.Column(db.String(20), nullable=False)
+    genero = db.Column(db.String(10), nullable=False)
+    edad = db.Column(db.Integer, nullable=False)
     partido_id = db.Column(db.Integer, db.ForeignKey('partido.id'), nullable=False)
     partido_rel = db.relationship('Partido', backref='votos_recibidos')
 
@@ -42,7 +44,6 @@ def index():
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
-    # Asegura que la DB exista al primer acceso
     db.create_all()
     seed_data()
     partidos = Partido.query.filter_by(ciudad=ciudad.upper()).all()
@@ -53,12 +54,14 @@ def confirmar_voto():
     p_id = request.form.get('partido_id')
     apellido = request.form.get('apellido', '').strip().upper()
     ci = request.form.get('ci', '').strip().upper()
+    genero = request.form.get('genero')
+    edad = request.form.get('edad')
 
     if Voto.query.filter_by(ci=ci).first():
         return render_template('index.html', mensaje=f"EL CI {ci} YA VOTO Y GRACIAS")
 
     try:
-        nuevo_voto = Voto(ci=ci, apellido=apellido, partido_id=p_id)
+        nuevo_voto = Voto(ci=ci, apellido=apellido, genero=genero, edad=edad, partido_id=p_id)
         db.session.add(nuevo_voto)
         db.session.commit()
         return render_template('index.html', mensaje="VOTO REGISTRADO EXITOSAMENTE")
@@ -82,7 +85,6 @@ def reporte():
     
     return render_template('reporte.html', resultados=resultados, total_global=total)
 
-# FUNCIÓN DE CARGA DE DATOS (SEEDER)
 def seed_data():
     if not Partido.query.first():
         datos = [
