@@ -3,66 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONSULTA CIUDADANA 2026</title>
+    <title>CONSULTA CIUDADANA MUNICIPAL</title>
     <style>
-        :root {
-            --accent: #d90429;
-            --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f2f2f2 100%);
-        }
-
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-
-        /* PANTALLA DE CARGA (SPLASH) */
-        #splash {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        #splash img { width: 180px; margin-bottom: 30px; }
-        .progress-container { width: 250px; height: 6px; background: #eee; border-radius: 10px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s linear; }
-        #percent { margin-top: 10px; font-weight: bold; color: #555; font-size: 0.9rem; }
+        :root { --accent: #d90429; }
+        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Segoe UI', sans-serif; background:#f0f2f5; }
 
         /* CONTENIDO PRINCIPAL */
-        #main-content {
-            display: none; height: 100vh; background: var(--bg-gradient);
-            align-items: center; justify-content: center; flex-direction: column;
+        .wrapper { 
+            display:flex; align-items:center; justify-content:center; height:100vh; 
+            transition: filter 0.5s ease; /* Para el efecto desenfoque */
         }
-
-        .hero-card {
-            background: white; width: 90%; max-width: 600px;
-            padding: 40px; border-radius: 30px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid #eee;
-        }
-
-        h1 { font-size: 2rem; letter-spacing: 3px; margin: 0; color: #1a1a1a; }
-        .line { width: 60px; height: 4px; background: var(--accent); margin: 15px auto 30px; }
-
-        .btn-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         
-        .btn-city {
-            flex: 1; min-width: 180px; background: #fdffdf; border: 1px solid #ddd;
-            padding: 25px; border-radius: 20px; text-decoration: none;
-            transition: 0.3s; display: flex; flex-direction: column; align-items: center;
-        }
-        .btn-city:hover { transform: translateY(-8px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .btn-city img { height: 80px; margin-bottom: 15px; object-fit: contain; }
-        .btn-city span { font-weight: 800; color: #222; letter-spacing: 1px; }
+        /* FILTRO DE DESENFOQUE CUANDO HAY MENSAJE */
+        .blur-active { filter: blur(10px); pointer-events: none; }
 
-        .link-reporte { margin-top: 40px; display: block; color: #999; font-size: 0.8rem; text-decoration: none; }
+        .hero-card { 
+            background:white; padding:50px 30px; border-radius:40px; 
+            box-shadow:0 20px 60px rgba(0,0,0,0.1); text-align:center; 
+            width:90%; max-width:750px; border: 1px solid #eee;
+        }
+
+        h1 { font-size:2.4rem; letter-spacing:2px; margin:0; color:#1a1a1a; font-weight:900; }
+        .municipal { color: #888; display: block; font-size: 1.5rem; margin-top: 5px; }
+        .line { width:100px; height:6px; background:var(--accent); margin:20px auto 40px; border-radius:3px; }
+
+        .btn-container { display:flex; gap:30px; justify-content:center; }
+        
+        .btn-city { 
+            flex:1; background:#fdffdf; border:2px solid #f0f0f0; padding:40px 20px; 
+            border-radius:30px; text-decoration:none; transition:0.4s; 
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+        }
+        .btn-city:hover { transform:translateY(-10px); border-color:var(--accent); background: #fff; box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+        
+        /* LOGOS IMPONENTES */
+        .btn-city img { width:90%; height:180px; object-fit:contain; margin-bottom:20px; }
+        .btn-city span { font-weight:800; color:#222; font-size:1.6rem; letter-spacing:1px; }
+
+        /* CAPA DE MENSAJE ELEGANTE (MODAL FULL SCREEN) */
+        .overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(15px);
+            display: none; align-items:center; justify-content:center; z-index: 9999;
+        }
+        .msg-content {
+            background: white; padding: 60px 40px; border-radius: 40px;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.2); text-align: center;
+            width: 85%; max-width: 500px; border: 1px solid #eee;
+        }
+        .msg-content h2 { font-size: 2.5rem; margin-bottom: 10px; color: #000; font-weight: 900; }
+        .msg-content p { font-size: 1.2rem; color: #555; margin-bottom: 30px; }
+        .ci-box { background: #f8f9fa; padding: 15px; border-radius: 15px; font-weight: bold; font-size: 1.5rem; color: var(--accent); letter-spacing: 2px; }
+        .btn-volver { 
+            display: inline-block; margin-top: 40px; padding: 15px 40px; 
+            background: #222; color: white; text-decoration: none; 
+            border-radius: 15px; font-weight: bold; transition: 0.3s;
+        }
+        .btn-volver:hover { background: var(--accent); transform: scale(1.05); }
+
+        /* RESPONSIVO CELULAR */
+        @media (max-width: 600px) {
+            .btn-container { flex-direction:column; gap:20px; }
+            h1 { font-size: 1.8rem; }
+            .btn-city img { height: 140px; }
+            .msg-content h2 { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <img src="/static/accion.png" alt="Accion">
-        <div class="progress-container"><div class="progress-bar" id="bar"></div></div>
-        <div id="percent">0%</div>
-    </div>
-
-    <div id="main-content">
+    <div class="wrapper" id="page-wrapper">
         <div class="hero-card">
-            <h1>CONSULTA CIUDADANA</h1>
+            <h1>CONSULTA CIUDADANA<br><span class="municipal">MUNICIPAL</span></h1>
             <div class="line"></div>
             
             <div class="btn-container">
@@ -75,28 +87,29 @@
                     <span>LA PAZ</span>
                 </a>
             </div>
-
-            <a href="/reporte" class="link-reporte">VER MONITOREO DE RESULTADOS →</a>
         </div>
     </div>
 
+    {% if msg_type %}
+    <div class="overlay" id="msg-overlay" style="display: flex;">
+        <div class="msg-content">
+            {% if msg_type == 'success' %}
+                <h2 style="color: #2b9348;">¡GRACIAS POR VOTAR!</h2>
+                <p>Tu participación es importante. Tu C.I. registrado es:</p>
+                <div class="ci-box">{{ ci_votante }}</div>
+            {% else %}
+                <h2 style="color: var(--accent);">YA REGISTRÓ SU VOTO</h2>
+                <p>El sistema indica que este C.I. ya ha participado:</p>
+                <div class="ci-box">{{ ci_votante }}</div>
+            {% endif %}
+            <a href="/" class="btn-volver">ENTENDIDO</a>
+        </div>
+    </div>
     <script>
-        let bar = document.getElementById('bar');
-        let percent = document.getElementById('percent');
-        let width = 0;
-        
-        let interval = setInterval(() => {
-            if (width >= 100) {
-                clearInterval(interval);
-                document.getElementById('splash').style.display = 'none';
-                document.getElementById('main-content').style.display = 'flex';
-                document.body.style.overflow = 'auto';
-            } else {
-                width++;
-                bar.style.width = width + '%';
-                percent.innerText = width + '%';
-            }
-        }, 30); // 30ms * 100 = 3 segundos aprox.
+        // Aplicar desenfoque al fondo
+        document.getElementById('page-wrapper').classList.add('blur-active');
     </script>
+    {% endif %}
+
 </body>
 </html>
