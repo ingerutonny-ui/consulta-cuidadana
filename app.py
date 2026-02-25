@@ -1,11 +1,10 @@
 import os
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_nancy_2026'
 
-# Configuración de Base de Datos para Render
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -15,7 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# MODELOS
+# MODELOS DEFINITIVOS
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -32,6 +31,11 @@ class Voto(db.Model):
     edad = db.Column(db.Integer, nullable=False)
     partido_id = db.Column(db.Integer, db.ForeignKey('partido.id'), nullable=False)
 
+# ESTO ROMPE EL BUCLE: LIMPIEZA TOTAL AL ARRANCAR
+with app.app_context():
+    db.drop_all() 
+    db.create_all()
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -43,17 +47,14 @@ def votar(ciudad):
 
 @app.route('/confirmar_voto', methods=['POST'])
 def confirmar_voto():
-    # Recolección estricta de datos
-    ci_val = request.form.get('ci', '').strip().upper()
-    
-    # Verificar duplicado manual
-    existe = Voto.query.filter_by(ci=ci_val).first()
-    if existe:
-        return render_template('index.html', msg_type="error", ci_votante=ci_val)
-
     try:
-        nuevo_voto = Voto(
-            ci=ci_val,
+        ci_f = request.form.get('ci', '').strip().upper()
+        # Verificar duplicado para no morir en el intento
+        if Voto.query.filter_by(ci=ci_f).first():
+            return render_template('index.html', msg_type="error", ci_votante=ci_f)
+
+        nuevo = Voto(
+            ci=ci_f,
             nombres=request.form.get('nombres', '').strip().upper(),
             apellido=request.form.get('apellido', '').strip().upper(),
             celular=request.form.get('celular'),
@@ -61,17 +62,12 @@ def confirmar_voto():
             edad=int(request.form.get('edad')),
             partido_id=int(request.form.get('partido_id'))
         )
-        db.session.add(nuevo_voto)
+        db.session.add(nuevo)
         db.session.commit()
-        return render_template('index.html', msg_type="success", ci_votante=ci_val)
+        return render_template('index.html', msg_type="success", ci_votante=ci_f)
     except Exception as e:
         db.session.rollback()
-        return render_template('index.html', msg_type="error", ci_votante=ci_val)
+        return render_template('index.html', msg_type="error", ci_votante="SISTEMA")
 
-# RESET DE BASE DE DATOS EN CADA DESPLIEGUE
 if __name__ == '__main__':
-    with app.app_context():
-        # ESTO ELIMINA EL ERROR 500 DE RAÍZ
-        db.drop_all() 
-        db.create_all()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
