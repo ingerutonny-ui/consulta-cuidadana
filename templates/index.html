@@ -93,48 +93,70 @@
 
         .header-box {
             text-align: center;
-            margin-bottom: 50px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 25px 50px;
             border-radius: 15px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         .city-selection {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 25px;
             align-items: center;
         }
 
+        .city-link {
+            text-decoration: none;
+            display: block;
+        }
+
         .city-card {
-            width: 350px;
+            width: 380px;
             cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s;
-            filter: grayscale(40%);
-            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: grayscale(100%) brightness(0.7);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 2px solid transparent;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         .city-card:hover {
-            transform: scale(1.05);
-            filter: grayscale(0%);
+            transform: scale(1.05) translateY(-5px);
+            filter: grayscale(0%) brightness(1);
             border-color: var(--accent-color);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
         }
 
         .city-card img {
             width: 100%;
+            height: 180px;
+            object-fit: cover;
             display: block;
         }
 
         h2 {
             font-weight: 300;
-            letter-spacing: 5px;
+            letter-spacing: 6px;
             margin-bottom: 10px;
             text-transform: uppercase;
+            color: white;
+        }
+
+        .label-ciudad {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
         }
     </style>
 </head>
@@ -152,18 +174,24 @@
 
     <div id="main-content">
         <div class="header-box">
-            <h2>Consulta Ciudadana</h2>
-            <p style="color: var(--accent-color); font-size: 0.8rem; letter-spacing: 3px;">{{ mensaje }}</p>
+            <h2>CONSULTA CIUDADANA</h2>
+            <p style="color: var(--accent-color); font-size: 0.8rem; letter-spacing: 4px; font-weight: bold;">{{ mensaje }}</p>
         </div>
 
         <div class="city-selection">
-            <div class="city-card">
-                <img src="{{ url_for('static', filename='lapaz.png') }}" alt="La Paz">
-            </div>
+            <a href="{{ url_for('votar', ciudad='LA PAZ') }}" class="city-link">
+                <div class="city-card">
+                    <img src="{{ url_for('static', filename='lapaz.png') }}" alt="La Paz">
+                    <div class="label-ciudad">LA PAZ</div>
+                </div>
+            </a>
 
-            <div class="city-card">
-                <img src="{{ url_for('static', filename='oruro.png') }}" alt="Oruro">
-            </div>
+            <a href="{{ url_for('votar', ciudad='ORURO') }}" class="city-link">
+                <div class="city-card">
+                    <img src="{{ url_for('static', filename='oruro.png') }}" alt="Oruro">
+                    <div class="label-ciudad">ORURO</div>
+                </div>
+            </a>
         </div>
     </div>
 
@@ -183,14 +211,14 @@
                         setTimeout(() => {
                             splash.style.display = 'none';
                             main.style.display = 'flex';
-                        }, 1000);
-                    }, 500);
+                        }, 800);
+                    }, 400);
                 } else {
                     width++;
                     bar.style.width = width + '%';
                     percent.innerText = width + '%';
                 }
-            }, 30); // Velocidad de la carga
+            }, 25);
         }
 
         window.onload = startLoading;
