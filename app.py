@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_2026'
 
-# Configuración de Base de Datos
+# Configuración de Base de Datos para Render
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -28,7 +28,7 @@ def index():
         db.drop_all()
         db.create_all()
         
-        # LISTA MAESTRA - 32 CANDIDATOS
+        # 15 CANDIDATOS ORURO
         oruro = [
             ["FRI", "Rene Roberto Mamani"], ["LEAL", "Ademar Willcarani"], ["NGP", "Iván Quispe"],
             ["AORA", "Santiago Condori"], ["UN", "Enrique Urquidi"], ["AUPP", "Juan Carlos Choque"],
@@ -37,6 +37,7 @@ def index():
             ["PP", "Carlos Aguilar"], ["SOMOS ORURO", "Marcelo Cortez"], ["JACHA", "Marcelo Medina"]
         ]
         
+        # 17 CANDIDATOS LA PAZ
         lapaz = [
             ["Jallalla", "Jhonny Plata"], ["ASP", "Xavier Iturralde"], ["Venceremos", "Waldo Albarracín"],
             ["Somos La Paz", "Miguel Roca"], ["UPC", "Luis Eduardo Siles"], ["Libre", "Carlos Palenque"],
@@ -52,15 +53,23 @@ def index():
         
         db.session.bulk_save_objects(objetos)
         db.session.commit()
-        return "SISTEMA CARGADO - VE A /votar/ORURO"
+        return render_template('index.html')
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error Crítico: {str(e)}"
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
-    partidos = Partido.query.filter_by(ciudad=ciudad.upper()).all()
-    prefijo = "OR" if ciudad.upper() == "ORURO" else "LP"
-    return render_template('votar.html', ciudad=ciudad.upper(), partidos=partidos, prefijo=prefijo)
+    ciudad_upper = ciudad.upper()
+    partidos = Partido.query.filter_by(ciudad=ciudad_upper).all()
+    # Prefijo para las imágenes (OR o LP)
+    prefijo = "OR" if ciudad_upper == "ORURO" else "LP"
+    return render_template('votar.html', ciudad=ciudad_upper, partidos=partidos, prefijo=prefijo)
+
+@app.route('/confirmar_voto', methods=['POST'])
+def confirmar_voto():
+    p_id = request.form.get('partido_id')
+    partido = Partido.query.get(p_id)
+    return render_template('confirmar.html', partido=partido)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
