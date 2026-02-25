@@ -3,202 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🗳️ CONSULTA CIUDADANA</title>
+    <title>CONSULTA CIUDADANA 2026</title>
     <style>
         :root {
-            --accent-color: #00d4ff;
-            --bg-dark: #050505;
+            --bg: #ffffff;
+            --gradient-bg: linear-gradient(135deg, #ffffff 0%, #f2f2f2 100%);
+            --accent: #d90429;
+            --text-dark: #2d2d2d;
+            --gray-light: #f8f9fa;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--gradient-bg);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
+            justify-content: center;
+            color: var(--text-dark);
         }
 
-        /* --- SPLASH SCREEN OPTIMIZADO --- */
-        #splash {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: #000;
+        .hero-card {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            padding: 50px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            color: #000;
+            font-weight: 800;
+        }
+
+        .line {
+            width: 50px;
+            height: 4px;
+            background: var(--accent);
+            margin: 0 auto 30px;
+            border-radius: 2px;
+        }
+
+        .status-msg {
+            background: var(--gray-light);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--accent);
+            color: #555;
+        }
+
+        .btn-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        /* Logo más grande y con resplandor */
-        .logo-container { 
-            width: 280px; /* Tamaño aumentado */
-            margin-bottom: 40px; 
-            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.3));
-        }
-
-        .progress-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             gap: 15px;
         }
 
-        .progress-container {
-            width: 250px;
-            height: 4px;
-            background: #111;
-            border-radius: 10px;
-            overflow: hidden;
+        .btn-city {
+            padding: 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+            background: white;
+            color: var(--text-dark);
+            letter-spacing: 1px;
         }
 
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--accent-color);
-            box-shadow: 0 0 15px var(--accent-color);
+        .btn-city:hover {
+            background: #222;
+            color: white;
+            border-color: #222;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        /* Estilo para el número de porcentaje */
-        #percent-text {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--accent-color);
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--accent-color);
+        .link-reporte {
+            margin-top: 30px;
+            display: inline-block;
+            color: #999;
+            font-size: 0.8rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
         }
 
-        /* --- CONTENIDO PRINCIPAL --- */
-        #main-content {
-            display: none;
-            width: 100%;
-            min-height: 100vh;
-            background: radial-gradient(circle at center, #0f172a 0%, #000000 100%);
-            flex-direction: column;
-            align-items: center;
-            padding: 30px 15px;
-            overflow-y: auto;
-        }
+        .link-reporte:hover { color: var(--accent); }
 
-        .header-box { text-align: center; margin-bottom: 25px; }
-        
-        h2 { 
-            font-weight: 300; 
-            letter-spacing: 5px; 
-            font-size: 1.1rem; 
-            margin-bottom: 5px;
-        }
-
-        .city-selection {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        .city-link { text-decoration: none; width: 100%; }
-
-        .city-card {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            overflow: hidden;
-            transition: transform 0.2s, border 0.2s;
-        }
-
-        .city-card img {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: contain;
-            background-color: #000;
-        }
-
-        .city-card:active { transform: scale(0.98); border-color: var(--accent-color); }
-
-        .city-name {
-            padding: 12px;
-            text-align: center;
-            font-weight: bold;
-            letter-spacing: 3px;
-            background: rgba(0,0,0,0.7);
-            font-size: 0.9rem;
-            color: var(--accent-color);
+        /* Responsivo para tablets/PC */
+        @media (min-width: 480px) {
+            .btn-container { flex-direction: row; }
+            .btn-city { flex: 1; }
         }
     </style>
 </head>
 <body>
+    <div class="hero-card">
+        <h1>CONSULTA<br>CIUDADANA</h1>
+        <div class="line"></div>
+        
+        <div class="status-msg">
+            {{ mensaje if mensaje else "BIENVENIDO, SELECCIONE SU CIUDAD PARA EMITIR SU VOTO" }}
+        </div>
 
-    <div id="splash">
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='accion.png') }}" alt="Logo" style="width: 100%;">
+        <div class="btn-container">
+            <a href="/votar/ORURO" class="btn-city">ORURO</a>
+            <a href="/votar/LA PAZ" class="btn-city">LA PAZ</a>
         </div>
-        <div class="progress-wrapper">
-            <div id="percent-text">0%</div>
-            <div class="progress-container">
-                <div class="progress-bar" id="bar"></div>
-            </div>
-        </div>
+
+        <a href="/reporte" class="link-reporte">Ver monitoreo de resultados →</a>
     </div>
-
-    <div id="main-content">
-        <div class="header-box">
-            <h2>CONSULTA CIUDADANA</h2>
-            <p style="font-size: 0.6rem; color: #666; letter-spacing: 2px;">{{ mensaje }}</p>
-        </div>
-
-        <div class="city-selection">
-            <a href="{{ url_for('votar', ciudad='LA PAZ') }}" class="city-link">
-                <div class="city-card">
-                    <img src="{{ url_for('static', filename='lapaz.png') }}" alt="La Paz">
-                    <div class="city-name">LA PAZ</div>
-                </div>
-            </a>
-
-            <a href="{{ url_for('votar', ciudad='ORURO') }}" class="city-link">
-                <div class="city-card">
-                    <img src="{{ url_for('static', filename='oruro.png') }}" alt="Oruro">
-                    <div class="city-name">ORURO</div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <script>
-        window.onload = function() {
-            let width = 0;
-            const bar = document.getElementById('bar');
-            const percentText = document.getElementById('percent-text');
-            const splash = document.getElementById('splash');
-            const main = document.getElementById('main-content');
-
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                    // Pequeña pausa al llegar al 100 para que se vea antes de ocultar
-                    setTimeout(() => {
-                        splash.style.transition = 'opacity 0.5s';
-                        splash.style.opacity = '0';
-                        setTimeout(() => {
-                            splash.style.display = 'none';
-                            main.style.display = 'flex';
-                        }, 500);
-                    }, 200);
-                } else {
-                    width += 1;
-                    bar.style.width = width + '%';
-                    percentText.innerHTML = width + '%';
-                }
-            }, 30); // 30ms * 100 = 3 segundos aprox
-        }
-    </script>
 </body>
 </html>
