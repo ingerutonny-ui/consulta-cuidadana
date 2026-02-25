@@ -25,6 +25,7 @@ class Partido(db.Model):
 def index():
     try:
         db.create_all()
+        # Solo inserta si la tabla está vacía para no saturar el arranque
         if not Partido.query.first():
             oruro = [
                 ["FRI", "Rene Roberto Mamani"], ["LEAL", "Ademar Willcarani"], ["NGP", "Iván Quispe"],
@@ -44,7 +45,7 @@ def index():
             for d in oruro: db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad="ORURO"))
             for d in lapaz: db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad="LA PAZ"))
             db.session.commit()
-        return render_template('index.html')
+        return render_template('index.html', mensaje="SISTEMA LISTO")
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -57,7 +58,7 @@ def votar(ciudad):
 def confirmar_voto():
     p_id = request.form.get('partido_id')
     partido = Partido.query.get(p_id)
-    return f"Voto registrado: {partido.nombre}"
+    return f"VOTO REGISTRADO: {partido.nombre}"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
