@@ -5,13 +5,20 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Configuración con corrección de protocolo para Render
+# Configuración con corrección de protocolo y SSL forzado para Render
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configuración de argumentos de conexión para evitar el cierre de SSL
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "connect_args": {
+        "sslmode": "require"
+    }
+}
 
 db = SQLAlchemy(app)
 
@@ -34,7 +41,7 @@ class Partido(db.Model):
 @app.route('/')
 def index():
     try:
-        # Lógica de base de datos (Reseteo para desarrollo)
+        # Lógica de base de datos
         db.drop_all() 
         db.create_all()
         
