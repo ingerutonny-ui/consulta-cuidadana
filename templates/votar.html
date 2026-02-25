@@ -1,194 +1,56 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOTACIÓN - {{ ciudad }}</title>
-    <style>
-        :root {
-            {% if ciudad == 'LA PAZ' %}
-            --primary-color: #d90429;
-            --secondary-color: #137547;
-            --glow-color: rgba(217, 4, 41, 0.4);
-            {% else %}
-            --primary-color: #bc4749;
-            --secondary-color: #bc4749;
-            --glow-color: rgba(188, 71, 73, 0.4);
-            {% endif %}
-            --bg-hueso: #fdfdfd;
-            --text-dark: #1a1a1a;
-        }
+import os
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+app = Flask(__name__)
+app.secret_key = 'consulta_ciudadana_secret'
 
-        body {
-            background-color: var(--bg-hueso);
-            color: var(--text-dark);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            padding: 20px 10px;
-        }
+# --- CONFIGURACIÓN DB ---
+uri = os.environ.get('DATABASE_URL')
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"sslmode": "prefer"}}
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-        }
+db = SQLAlchemy(app)
 
-        .logo-ciudad {
-            width: 100px;
-            height: auto;
-            margin-bottom: 10px;
-        }
+# --- MODELOS ---
+class Votante(db.Model):
+    ci = db.Column(db.String(20), primary_key=True)
+    ciudad = db.Column(db.String(50))
+    ya_voto = db.Column(db.Boolean, default=False)
 
-        h1 {
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #333;
-        }
+class Partido(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    alcalde = db.Column(db.String(100), nullable=False)
+    concejal = db.Column(db.String(100), nullable=False)
+    ciudad = db.Column(db.String(50), nullable=False)
+    votos_alcalde = db.Column(db.Integer, default=0)
 
-        .ciudad-badge {
-            display: inline-block;
-            padding: 4px 20px;
-            background: var(--secondary-color);
-            color: white;
-            border-radius: 50px;
-            font-weight: bold;
-            margin-top: 8px;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-        }
+@app.route('/')
+def index():
+    try:
+        db.create_all()
+        # Aquí ya están cargados los 15 de Oruro y 17 de La Paz según los chats anteriores
+        return render_template('index.html', mensaje="SISTEMA LISTO")
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-        .grid-partidos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+@app.route('/votar/<ciudad>')
+def votar(ciudad):
+    partidos = Partido.query.filter_by(ciudad=ciudad).order_by(Partido.id).all()
+    # PREFIJO AUTOMÁTICO: OR para Oruro, LP para La Paz
+    prefijo = "OR" if ciudad == "ORURO" else "LP"
+    return render_template('votar.html', ciudad=ciudad, partidos=partidos, prefijo=prefijo)
 
-        .card-partido {
-            background: white;
-            border: 1px solid #eaeaea;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+@app.route('/confirmar_voto', methods=['POST'])
+def confirmar_voto():
+    p = Partido.query.get(request.form.get('partido_id'))
+    return render_template('confirmar.html', partido=p, ciudad=request.form.get('ciudad'))
 
-        /* EFECTO AL ACERCARSE A LA TARJETA */
-        .card-partido:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-
-        .partido-titulo {
-            font-weight: 900;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1rem;
-            letter-spacing: 1px;
-        }
-
-        .info-candidato { margin: 10px 0; }
-
-        .label {
-            display: block;
-            font-size: 0.6rem;
-            color: #999;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .nombre {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #222;
-        }
-
-        /* --- BOTÓN CON EFECTO DE BRILLO --- */
-        .btn-votar {
-            margin-top: 15px;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: var(--primary-color);
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        /* EFECTO DE BRILLO (GLOW) */
-        .btn-votar:hover {
-            box-shadow: 0 0 20px var(--glow-color);
-            background: var(--primary-color);
-            letter-spacing: 1px;
-        }
-
-        .btn-votar:active {
-            transform: scale(0.95);
-        }
-
-        @media (max-width: 450px) {
-            .grid-partidos {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-            .card-partido { padding: 15px; }
-            .partido-titulo { font-size: 0.85rem; }
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        {% if ciudad == 'LA PAZ' %}
-            <img src="{{ url_for('static', filename='lapaz.png') }}" class="logo-ciudad">
-        {% else %}
-            <img src="{{ url_for('static', filename='oruro.png') }}" class="logo-ciudad">
-        {% endif %}
-        <h1>Consulta Ciudadana</h1>
-        <div class="ciudad-badge">{{ ciudad }}</div>
-    </header>
-
-    <main class="grid-partidos">
-        {% for partido in partidos %}
-        <div class="card-partido">
-            <div>
-                <div class="partido-titulo">{{ partido.nombre }}</div>
-                
-                <div class="info-candidato">
-                    <span class="label">Alcalde</span>
-                    <span class="nombre">{{ partido.alcalde }}</span>
-                </div>
-
-                <div class="info-candidato">
-                    <span class="label">Concejal</span>
-                    <span class="nombre">{{ partido.concejal }}</span>
-                </div>
-            </div>
-
-            <form action="/confirmar_voto" method="POST">
-                <input type="hidden" name="partido_id" value="{{ partido.id }}">
-                <input type="hidden" name="ciudad" value="{{ ciudad }}">
-                <button type="submit" class="btn-votar">Votar</button>
-            </form>
-        </div>
-        {% endfor %}
-    </main>
-
-</body>
-</html>
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
