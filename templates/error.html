@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERROR EN VOTACIÓN</title>
+    <style>
+        :root { --error-color: #ff3333; --bg-dark: #000; }
+        body {
+            background-color: var(--bg-dark); color: white;
+            font-family: 'Segoe UI', sans-serif; height: 100vh;
+            display: flex; justify-content: center; align-items: center; margin: 0;
+        }
+        .container {
+            text-align: center; border: 1px solid var(--error-color);
+            padding: 50px; border-radius: 30px; background: rgba(255, 51, 51, 0.05);
+            box-shadow: 0 0 50px rgba(255, 51, 51, 0.1);
+        }
+        .icon { font-size: 80px; margin-bottom: 20px; color: var(--error-color); }
+        h1 { letter-spacing: 3px; text-transform: uppercase; margin-bottom: 15px; }
+        p { color: #aaa; letter-spacing: 1px; margin-bottom: 30px; font-size: 1.2rem; }
+        .btn-back {
+            padding: 15px 40px; border-radius: 50px; border: 1px solid var(--error-color);
+            color: var(--error-color); text-decoration: none; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;
+        }
+        .btn-back:hover { background: var(--error-color); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">✕</div>
+        <h1>ACCESO DENEGADO</h1>
+        <p>{{ mensaje }}</p>
+        <a href="/" class="btn-back">VOLVER AL INICIO</a>
+    </div>
+</body>
+</html>
