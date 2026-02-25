@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOTACIÓN - {{ ciudad }}</title>
     <style>
-        /* CONFIGURACIÓN DINÁMICA POR CIUDAD */
         :root {
             {% if ciudad == 'LA PAZ' %}
-            --primary-color: #d90429; /* Rojo La Paz */
-            --secondary-color: #137547; /* Verde La Paz */
+            --primary-color: #d90429;
+            --secondary-color: #137547;
+            --glow-color: rgba(217, 4, 41, 0.4);
             {% else %}
-            --primary-color: #bc4749; /* Rojo Oruro */
-            --secondary-color: #bc4749; 
+            --primary-color: #bc4749;
+            --secondary-color: #bc4749;
+            --glow-color: rgba(188, 71, 73, 0.4);
             {% endif %}
-            --bg-hueso: #f8f9fa;
+            --bg-hueso: #fdfdfd;
             --text-dark: #1a1a1a;
         }
 
@@ -23,7 +24,7 @@
         body {
             background-color: var(--bg-hueso);
             color: var(--text-dark);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             padding: 20px 10px;
         }
@@ -31,110 +32,123 @@
         header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 3px solid var(--primary-color);
-            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
         }
 
         .logo-ciudad {
-            width: 120px;
+            width: 100px;
             height: auto;
             margin-bottom: 10px;
-            object-fit: contain;
         }
 
         h1 {
-            font-size: 1.4rem;
-            letter-spacing: 2px;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            color: var(--text-dark);
+            color: #333;
         }
 
         .ciudad-badge {
             display: inline-block;
-            padding: 5px 15px;
+            padding: 4px 20px;
             background: var(--secondary-color);
             color: white;
-            border-radius: 5px;
+            border-radius: 50px;
             font-weight: bold;
-            margin-top: 5px;
-            font-size: 0.9rem;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
         }
 
-        /* GRID DE PARTIDOS */
         .grid-partidos {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-            max-width: 800px;
+            gap: 20px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
         .card-partido {
             background: white;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 15px;
+            border: 1px solid #eaeaea;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        .partido-titulo {
-            font-weight: 800;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+        /* EFECTO AL ACERCARSE A LA TARJETA */
+        .card-partido:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
-        .info-candidato {
-            margin: 8px 0;
+        .partido-titulo {
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1rem;
+            letter-spacing: 1px;
         }
+
+        .info-candidato { margin: 10px 0; }
 
         .label {
             display: block;
             font-size: 0.6rem;
-            color: #777;
+            color: #999;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: bold;
         }
 
         .nombre {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            line-height: 1.2;
+            color: #222;
         }
 
+        /* --- BOTÓN CON EFECTO DE BRILLO --- */
         .btn-votar {
             margin-top: 15px;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             background: var(--primary-color);
             color: white;
             font-weight: bold;
             text-transform: uppercase;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* EFECTO DE BRILLO (GLOW) */
+        .btn-votar:hover {
+            box-shadow: 0 0 20px var(--glow-color);
+            background: var(--primary-color);
+            letter-spacing: 1px;
         }
 
         .btn-votar:active {
             transform: scale(0.95);
-            opacity: 0.8;
         }
 
-        /* RESPONSIVO PARA MÓVIL */
-        @media (max-width: 400px) {
+        @media (max-width: 450px) {
             .grid-partidos {
-                grid-template-columns: 1fr 1fr; /* Dos columnas en celulares pequeños */
-                gap: 10px;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
             }
-            h1 { font-size: 1.1rem; }
+            .card-partido { padding: 15px; }
+            .partido-titulo { font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -142,9 +156,9 @@
 
     <header>
         {% if ciudad == 'LA PAZ' %}
-            <img src="{{ url_for('static', filename='lapaz.png') }}" class="logo-ciudad" alt="La Paz">
+            <img src="{{ url_for('static', filename='lapaz.png') }}" class="logo-ciudad">
         {% else %}
-            <img src="{{ url_for('static', filename='oruro.png') }}" class="logo-ciudad" alt="Oruro">
+            <img src="{{ url_for('static', filename='oruro.png') }}" class="logo-ciudad">
         {% endif %}
         <h1>Consulta Ciudadana</h1>
         <div class="ciudad-badge">{{ ciudad }}</div>
