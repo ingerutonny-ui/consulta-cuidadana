@@ -3,159 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORTE - CONSULTA CIUDADANA</title>
+    <title>REPORTE BARRAS - CONSULTA CIUDADANA</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        :root {
-            --accent: #d90429;
-            --bg: #050505;
-            --card-bg: rgba(255, 255, 255, 0.03);
-        }
-
+        :root { --accent: #d90429; --card-bg: rgba(255, 255, 255, 0.03); }
         body {
             background: radial-gradient(circle at top, #2b0000 0%, #000000 100%);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 40px 20px;
-            min-height: 100vh;
+            color: white; font-family: sans-serif; margin: 0; padding: 40px 20px;
         }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            letter-spacing: 5px;
-            font-weight: 300;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(217, 4, 41, 0.4);
-        }
-
-        .line {
-            width: 60px;
-            height: 3px;
-            background: var(--accent);
-            margin: 0 auto;
-            box-shadow: 0 0 10px var(--accent);
-        }
-
-        /* CONTENEDOR DE TORTA */
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
         .chart-container {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
-            max-height: 400px;
+            background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; margin-bottom: 30px; height: 400px;
         }
-
         .tabla-container {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        thead {
-            background: rgba(217, 4, 41, 0.1);
-        }
-
-        th {
-            padding: 20px;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            color: var(--accent);
-            border-bottom: 1px solid rgba(217, 4, 41, 0.3);
-        }
-
-        td {
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 1rem;
-        }
-
-        .votos-badge {
-            background: var(--accent);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        .controls {
-            text-align: center;
-            margin-top: 30px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-pdf {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-inicio {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
-
-        /* Estilos específicos para PDF */
-        .pdf-mode { color: black !important; background: white !important; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 15px; color: var(--accent); border-bottom: 1px solid rgba(217,4,41,0.3); text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .votos-badge { background: var(--accent); padding: 5px 12px; border-radius: 50px; font-weight: bold; }
+        .controls { text-align: center; margin-top: 30px; display: flex; gap: 20px; justify-content: center; }
+        .btn { padding: 12px 25px; border-radius: 8px; text-decoration: none; cursor: pointer; border: none; font-weight: bold; }
+        .btn-pdf { background: #27ae60; color: white; }
+        .btn-inicio { background: #444; color: white; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="reporte-content">
+    <div class="container" id="reporte-pdf">
         <header>
-            <h1>ESTADO DE VOTACIÓN</h1>
-            <div class="line"></div>
+            <h1>ESTADÍSTICAS DE VOTACIÓN</h1>
+            <div style="width:60px; height:3px; background:var(--accent); margin:10px auto;"></div>
         </header>
 
         <div class="chart-container">
-            <canvas id="votosChart"></canvas>
+            <canvas id="barChart"></canvas>
         </div>
 
         <div class="tabla-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Ubicación</th>
-                        <th>Candidato / Partido</th>
-                        <th style="text-align: right;">Total Votos</th>
+                        <th>Ciudad</th>
+                        <th>Candidato</th>
+                        <th style="text-align: right;">Votos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -163,13 +59,7 @@
                     <tr>
                         <td>{{ r.ciudad }}</td>
                         <td><strong>{{ r.nombre }}</strong></td>
-                        <td style="text-align: right;">
-                            <span class="votos-badge">{{ r.total }}</span>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 40px;">No hay datos.</td>
+                        <td style="text-align: right;"><span class="votos-badge">{{ r.total }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -178,44 +68,42 @@
     </div>
 
     <div class="controls">
-        <button onclick="exportarPDF()" class="btn btn-pdf">EXPORTAR PDF</button>
-        <a href="/" class="btn btn-inicio">INICIO</a>
+        <button onclick="descargarPDF()" class="btn btn-pdf">DESCARGAR PDF</button>
+        <a href="/" class="btn btn-inicio">VOLVER</a>
     </div>
 
     <script>
-        // Configuración de la Torta
-        const ctx = document.getElementById('votosChart').getContext('2d');
-        const data = {
-            labels: [{% for r in resultados %}"{{ r.nombre }}",{% endfor %}],
-            datasets: [{
-                data: [{% for r in resultados %}{{ r.total }},{% endfor %}],
-                backgroundColor: ['#d90429', '#ef233c', '#8d99ae', '#2b2d42', '#fb8500', '#219ebc'],
-                borderWidth: 0
-            }]
-        };
-
+        const ctx = document.getElementById('barChart').getContext('2d');
         new Chart(ctx, {
-            type: 'pie',
-            data: data,
+            type: 'bar',
+            data: {
+                labels: [{% for r in resultados %}"{{ r.nombre }}",{% endfor %}],
+                datasets: [{
+                    label: 'Votos Totales',
+                    data: [{% for r in resultados %}{{ r.total }},{% endfor %}],
+                    backgroundColor: '#d90429',
+                    borderRadius: 5
+                }]
+            },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: 'white' } }
-                }
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
+                },
+                plugins: { legend: { display: false } }
             }
         });
 
-        // Función Exportar PDF
-        function exportarPDF() {
-            const element = document.getElementById('reporte-content');
-            const opt = {
+        function descargarPDF() {
+            const element = document.getElementById('reporte-pdf');
+            html2pdf().set({
                 margin: 1,
-                filename: 'Reporte_Votacion_2026.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                filename: 'Reporte_Barras_Nancy.pdf',
                 html2canvas: { scale: 2, backgroundColor: '#050505' },
                 jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
+            }).from(element).save();
         }
     </script>
 </body>
