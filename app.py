@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_nancy_2026'
 
+# Configuración de Base de Datos para Render (PostgreSQL) o Local (SQLite)
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -14,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# MODELOS
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -38,6 +40,7 @@ def index():
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
     ciudad_up = ciudad.upper()
+    # Asegura que los candidatos existan antes de cargar la página
     restaurar_nombres_interna()
     partidos = Partido.query.filter_by(ciudad=ciudad_up).all()
     return render_template('votar.html', ciudad=ciudad_up, partidos=partidos)
@@ -45,22 +48,22 @@ def votar(ciudad):
 def restaurar_nombres_interna():
     db.create_all()
     data = [
-        # ORURO - LISTA COMPLETA SEGÚN PDF (15 CANDIDATOS ACTIVOS)
-        {'n': 'FRI', 'a': 'RENE ROBERTO MAMANI LLAVE', 'c': 'ORURO'}, #
-        {'n': 'LEAL', 'a': 'ADEMAR WILLCARANI MORALES', 'c': 'ORURO'}, #
-        {'n': 'NGP', 'a': 'IVÁN QUISPE GUTIÉRREZ', 'c': 'ORURO'}, #
-        {'n': 'AORA', 'a': 'SANTIAGO CONDORI APAZA', 'c': 'ORURO'}, #
-        {'n': 'UN', 'a': 'ENRIQUE FERNANDO URQUIDI DAZA', 'c': 'ORURO'}, #
-        {'n': 'AUPP', 'a': 'JUAN CARLOS CHOQUE ZUBIETA', 'c': 'ORURO'}, #
-        {'n': 'UCS', 'a': 'LINO MARCOS MAIN ADRIÁN', 'c': 'ORURO'}, #
-        {'n': 'SUMATE', 'a': 'OSCAR MIGUEL TOCO CHOQUE', 'c': 'ORURO'}, #
-        {'n': 'MTS', 'a': 'OLIVER OSCAR POMA CARTAGENA', 'c': 'ORURO'}, #
-        {'n': 'PATRIA ORURO', 'a': 'RAFAEL VARGAS VILLEGAS', 'c': 'ORURO'}, #
-        {'n': 'LIBRE', 'a': 'RENE BENJAMIN GUZMAN VARGAS', 'c': 'ORURO'}, #
-        {'n': 'PP', 'a': 'CARLOS AGUILAR', 'c': 'ORURO'}, #
-        {'n': 'SOMOS ORURO', 'a': 'MARCELO CORTEZ GUTIÉRREZ', 'c': 'ORURO'}, #
-        {'n': 'JACHA', 'a': 'MARCELO FERNANDO MEDINA CENTELLAS', 'c': 'ORURO'}, #
-        {'n': 'SOL.BO', 'a': 'MARCELO MEDINA', 'c': 'ORURO'}, #
+        # ORURO - LISTA SEGÚN PDF
+        {'n': 'FRI', 'a': 'RENE ROBERTO MAMANI LLAVE', 'c': 'ORURO'},
+        {'n': 'LEAL', 'a': 'ADEMAR WILLCARANI MORALES', 'c': 'ORURO'},
+        {'n': 'NGP', 'a': 'IVÁN QUISPE GUTIÉRREZ', 'c': 'ORURO'},
+        {'n': 'AORA', 'a': 'SANTIAGO CONDORI APAZA', 'c': 'ORURO'},
+        {'n': 'UN', 'a': 'ENRIQUE FERNANDO URQUIDI DAZA', 'c': 'ORURO'},
+        {'n': 'AUPP', 'a': 'JUAN CARLOS CHOQUE ZUBIETA', 'c': 'ORURO'},
+        {'n': 'UCS', 'a': 'LINO MARCOS MAIN ADRIÁN', 'c': 'ORURO'},
+        {'n': 'SUMATE', 'a': 'OSCAR MIGUEL TOCO CHOQUE', 'c': 'ORURO'},
+        {'n': 'MTS', 'a': 'OLIVER OSCAR POMA CARTAGENA', 'c': 'ORURO'},
+        {'n': 'PATRIA ORURO', 'a': 'RAFAEL VARGAS VILLEGAS', 'c': 'ORURO'},
+        {'n': 'LIBRE', 'a': 'RENE BENJAMIN GUZMAN VARGAS', 'c': 'ORURO'},
+        {'n': 'PP', 'a': 'CARLOS AGUILAR', 'c': 'ORURO'},
+        {'n': 'SOMOS ORURO', 'a': 'MARCELO CORTEZ GUTIÉRREZ', 'c': 'ORURO'},
+        {'n': 'JACHA', 'a': 'MARCELO FERNANDO MEDINA CENTELLAS', 'c': 'ORURO'},
+        {'n': 'SOL.BO', 'a': 'MARCELO MEDINA', 'c': 'ORURO'},
 
         # LA PAZ (17 CANDIDATOS)
         {'n': 'JALLALLA', 'a': 'JHONNY PLATA', 'c': 'LA PAZ'},
@@ -82,8 +85,7 @@ def restaurar_nombres_interna():
         {'n': 'APG', 'a': 'GUSTAVO BEJARANO', 'c': 'LA PAZ'}
     ]
     for p in data:
-        partido_existente = Partido.query.filter_by(nombre=p['n'], ciudad=p['c']).first()
-        if not partido_existente:
+        if not Partido.query.filter_by(nombre=p['n'], ciudad=p['c']).first():
             db.session.add(Partido(nombre=p['n'], alcalde=p['a'], ciudad=p['c']))
     db.session.commit()
 
@@ -108,7 +110,18 @@ def confirmar_voto():
         return render_template('index.html', msg_type="success", ci_votante=ci_f)
     except Exception:
         db.session.rollback()
-        return render_template('index.html', msg_type="error", ci_votante="ERROR_SISTEMA")
+        return render_template('index.html', msg_type="error", ci_votante="ERROR")
+
+@app.route('/reporte')
+def reporte():
+    # Consulta para el gráfico de barras: cuenta votos por cada partido
+    resultados = db.session.query(
+        Partido.nombre, 
+        Partido.ciudad, 
+        db.func.count(Voto.id).label('total')
+    ).join(Voto, Voto.partido_id == Partido.id).group_by(Partido.id).order_by(db.func.count(Voto.id).desc()).all()
+    
+    return render_template('reporte.html', resultados=resultados)
 
 if __name__ == '__main__':
     with app.app_context():
