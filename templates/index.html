@@ -6,58 +6,129 @@
     <title>CONSULTA CIUDADANA MUNICIPAL</title>
     <style>
         :root { --accent: #d90429; }
-        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Segoe UI', sans-serif; background:#f4f7f6; }
-        .wrapper { display:flex; align-items:center; justify-content:center; height:100vh; transition: filter 0.5s ease; }
+        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Segoe UI', sans-serif; background:#f4f7f6; overflow: hidden; }
+
+        /* SPLASH SCREEN */
+        #splash {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: white; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10000;
+        }
+        .splash-logo { width: 120px; height: 120px; margin-bottom: 20px; animation: pulse 1.5s infinite; }
+        .loader-container { width: 250px; height: 8px; background: #eee; border-radius: 10px; overflow: hidden; position: relative; }
+        .loader-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.05s linear; }
+        .loader-text { margin-top: 15px; font-weight: bold; color: #555; font-size: 1.2rem; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* CONTENIDO PRINCIPAL */
+        .wrapper { display:flex; align-items:center; justify-content:center; height:100vh; transition: filter 0.5s ease; opacity: 0; }
+        .show-content { opacity: 1; transition: opacity 0.5s ease; }
         .blur-active { filter: blur(12px); pointer-events: none; }
 
-        .hero-card { background:white; padding:60px 40px; border-radius:40px; box-shadow:0 30px 70px rgba(0,0,0,0.08); text-align:center; width:90%; max-width:800px; }
-        h1 { font-size:2.5rem; letter-spacing:2px; margin:0; color:#111; font-weight:900; line-height:1.1; }
-        .municipal { color: #777; font-size: 1.6rem; display: block; margin-top: 10px; font-weight: 600; }
-        .line { width:120px; height:7px; background:var(--accent); margin:25px auto 45px; border-radius:10px; }
+        .hero-card { background:white; padding:50px 30px; border-radius:40px; box-shadow:0 30px 70px rgba(0,0,0,0.08); text-align:center; width:90%; max-width:800px; }
+        h1 { font-size:2.4rem; letter-spacing:2px; margin:0; color:#111; font-weight:900; line-height:1.1; text-transform: uppercase; }
+        .municipal { color: #777; font-size: 1.5rem; display: block; margin-top: 8px; font-weight: 600; }
+        .line { width:100px; height:6px; background:var(--accent); margin:20px auto 35px; border-radius:10px; }
 
-        .btn-container { display:flex; gap:35px; justify-content:center; }
-        .btn-city { flex:1; background:#fdffdf; border:2px solid #eee; padding:50px 20px; border-radius:35px; text-decoration:none; transition:0.4s; display:flex; flex-direction:column; align-items:center; }
-        .btn-city:hover { transform:scale(1.05); border-color:var(--accent); background:white; }
-        .btn-city img { width:95%; height:200px; object-fit:contain; margin-bottom:25px; }
-        .btn-city span { font-weight:900; color:#222; font-size:1.8rem; letter-spacing:1px; }
+        .btn-container { display:flex; gap:30px; justify-content:center; margin-bottom: 30px; }
+        .btn-city { flex:1; background:#fdffdf; border:2px solid #eee; padding:45px 20px; border-radius:35px; text-decoration:none; transition:0.4s; display:flex; flex-direction:column; align-items:center; }
+        .btn-city:hover { transform:translateY(-10px); border-color:var(--accent); background:white; box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+        
+        /* LOGOS IMPONENTES */
+        .btn-city img { width:95%; height:190px; object-fit:contain; margin-bottom:20px; }
+        .btn-city span { font-weight:900; color:#222; font-size:1.7rem; letter-spacing:1px; }
 
+        .monitoreo { color: #999; text-decoration: none; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .monitoreo:hover { color: var(--accent); }
+
+        /* CAPA DE MENSAJE (DESENFOQUE) */
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.6); backdrop-filter: blur(15px); display: none; align-items:center; justify-content:center; z-index: 9999; }
-        .msg-content { background: white; padding: 60px; border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.15); text-align: center; width: 85%; max-width: 550px; }
-        .msg-content h2 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 900; }
-        .ci-box { background: #f0f2f5; padding: 20px; border-radius: 20px; font-weight: bold; font-size: 2rem; color: var(--accent); margin: 20px 0; border: 2px dashed #ccc; }
+        .msg-content { background: white; padding: 50px; border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.15); text-align: center; width: 85%; max-width: 500px; border: 1px solid #eee; }
+        .msg-content h2 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 900; }
+        .ci-box { background: #f8f9fa; padding: 20px; border-radius: 20px; font-weight: bold; font-size: 2.2rem; color: var(--accent); margin: 20px 0; border: 2px dashed #ddd; }
         .btn-volver { display: inline-block; margin-top: 30px; padding: 18px 50px; background: #222; color: white; text-decoration: none; border-radius: 20px; font-weight: bold; }
 
-        @media (max-width: 600px) { .btn-container { flex-direction:column; } .btn-city img { height: 160px; } }
+        @media (max-width: 600px) { 
+            .btn-container { flex-direction:column; } 
+            h1 { font-size: 1.8rem; }
+            .btn-city img { height: 150px; }
+        }
     </style>
 </head>
 <body>
+
+    <div id="splash">
+        <img src="/static/accion.png" class="splash-logo" alt="Logo">
+        <div class="loader-container">
+            <div class="loader-bar" id="bar"></div>
+        </div>
+        <div class="loader-text" id="percent">0%</div>
+    </div>
+
     <div class="wrapper" id="page-wrapper">
         <div class="hero-card">
             <h1>CONSULTA CIUDADANA<br><span class="municipal">MUNICIPAL</span></h1>
             <div class="line"></div>
+            
             <div class="btn-container">
-                <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png"><span>ORURO</span></a>
-                <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png"><span>LA PAZ</span></a>
+                <a href="/votar/ORURO" class="btn-city">
+                    <img src="/static/oruro.png" alt="Oruro">
+                    <span>ORURO</span>
+                </a>
+                <a href="/votar/LA PAZ" class="btn-city">
+                    <img src="/static/lapaz.png" alt="La Paz">
+                    <span>LA PAZ</span>
+                </a>
             </div>
+
+            <a href="/reporte" class="monitoreo">VER MONITOREO DE RESULTADOS →</a>
         </div>
     </div>
 
     {% if msg_type %}
-    <div class="overlay" style="display: flex;">
+    <div class="overlay" id="msg-overlay" style="display: flex;">
         <div class="msg-content">
             {% if msg_type == 'success' %}
-                <h2 style="color: #1b4332;">¡GRACIAS POR VOTAR!</h2>
-                <p>Su voto ha sido registrado correctamente para el C.I.:</p>
+                <h2 style="color: #2b9348;">¡GRACIAS POR VOTAR!</h2>
+                <p>Su participación fue registrada para el C.I.:</p>
                 <div class="ci-box">{{ ci_votante }}</div>
             {% else %}
-                <h2 style="color: var(--accent);">YA VOTÓ</h2>
-                <p>El sistema detectó que este C.I. ya emitió su voto:</p>
+                <h2 style="color: var(--accent);">YA REGISTRÓ SU VOTO</h2>
+                <p>El C.I. ingresado ya emitió su voto previamente:</p>
                 <div class="ci-box">{{ ci_votante }}</div>
             {% endif %}
-            <a href="/" class="btn-volver">SALIR</a>
+            <a href="/" class="btn-volver">ENTENDIDO</a>
         </div>
     </div>
-    <script>document.getElementById('page-wrapper').classList.add('blur-active');</script>
     {% endif %}
+
+    <script>
+        // Lógica del Cargador 0-100%
+        let progress = 0;
+        const bar = document.getElementById('bar');
+        const percentText = document.getElementById('percent');
+        const splash = document.getElementById('splash');
+        const wrapper = document.getElementById('page-wrapper');
+
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 5) + 1;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    wrapper.classList.add('show-content');
+                    document.body.style.overflow = 'auto';
+                    // Activar blur si hay mensaje de Python
+                    if (document.getElementById('msg-overlay')) {
+                        wrapper.classList.add('blur-active');
+                    }
+                }, 500);
+            }
+            bar.style.width = progress + '%';
+            percentText.innerText = progress + '%';
+        }, 50);
+    </script>
 </body>
 </html>
