@@ -1,10 +1,20 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, text
 
 app = Flask(__name__)
+
 app.secret_key = 'consulta_ciudadana_2026'
+
+# --- LÓGICA DE COMPATIBILIDAD PARA TABLETAS ANTIGUAS ---
+@app.after_request
+def add_header(response):
+    # Obliga al navegador (especialmente en tablets viejas) a no usar cache
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 # Configuración de Base de Datos para Render
 uri = os.environ.get('DATABASE_URL')
@@ -46,7 +56,7 @@ def index():
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
-    # Forzar creación de tablas y nuevas columnas
+    # Forzar creación de tablas y nuevas columnas al entrar a la papeleta
     with app.app_context():
         db.create_all()
         actualizar_schema()
@@ -78,6 +88,8 @@ def confirmar_voto():
         return render_template('index.html', mensaje="VOTO REGISTRADO EXITOSAMENTE")
     except Exception as e:
         db.session.rollback()
+        # Imprime el error en la consola de Render para monitoreo
+        print(f"Error en registro: {str(e)}")
         return render_template('index.html', mensaje="ERROR EN EL REGISTRO")
 
 @app.route('/reporte')
@@ -99,8 +111,7 @@ def reporte():
 def actualizar_schema():
     """Agrega columnas faltantes si la DB ya existía"""
     try:
-        # Para SQLite o PostgreSQL, intentamos añadir las columnas manualmente
-        # Si ya existen, el 'except' atrapará el error y no pasará nada.
+        # Intentamos añadir las columnas por si la DB es antigua
         db.session.execute(text('ALTER TABLE voto ADD COLUMN nombres VARCHAR(50)'))
         db.session.execute(text('ALTER TABLE voto ADD COLUMN celular VARCHAR(15)'))
         db.session.commit()
