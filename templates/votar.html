@@ -5,160 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOTACIÓN - {{ ciudad }}</title>
     <style>
+        /* CONFIGURACIÓN DINÁMICA POR CIUDAD */
         :root {
-            --accent-color: #00d4ff;
-            --bg-dark: #0a0a0a;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            {% if ciudad == 'LA PAZ' %}
+            --primary-color: #d90429; /* Rojo La Paz */
+            --secondary-color: #137547; /* Verde La Paz */
+            {% else %}
+            --primary-color: #bc4749; /* Rojo Oruro */
+            --secondary-color: #bc4749; 
+            {% endif %}
+            --bg-hueso: #f8f9fa;
+            --text-dark: #1a1a1a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
-                        url("{{ url_for('static', filename='fondo.png') }}") no-repeat center center fixed;
-            background-size: cover;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-hueso);
+            color: var(--text-dark);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 10px;
         }
 
         header {
             text-align: center;
-            padding: 30px 0;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-            margin-bottom: 40px;
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 15px;
         }
 
-        .logo-small {
-            width: 80px;
+        .logo-ciudad {
+            width: 120px;
+            height: auto;
             margin-bottom: 10px;
+            object-fit: contain;
         }
 
         h1 {
-            font-weight: 300;
-            letter-spacing: 8px;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            font-size: 1.8rem;
+            color: var(--text-dark);
         }
 
-        .ciudad-tag {
-            color: var(--accent-color);
+        .ciudad-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 5px;
             font-weight: bold;
-            letter-spacing: 3px;
-            font-size: 1rem;
+            margin-top: 5px;
+            font-size: 0.9rem;
         }
 
-        .grid-candidatos {
+        /* GRID DE PARTIDOS */
+        .grid-partidos {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            max-width: 800px;
             margin: 0 auto;
-            padding-bottom: 50px;
         }
 
         .card-partido {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 25px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 15px;
             text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .card-partido:hover {
-            transform: translateY(-10px);
-            border-color: var(--accent-color);
-            background: rgba(0, 212, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        .partido-titulo {
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
         }
 
-        .partido-nombre {
-            font-size: 1.4rem;
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .candidato-info {
-            margin: 10px 0;
-            padding: 10px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
+        .info-candidato {
+            margin: 8px 0;
         }
 
         .label {
             display: block;
-            font-size: 0.7rem;
-            color: #888;
+            font-size: 0.6rem;
+            color: #777;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .nombre {
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.2;
         }
 
         .btn-votar {
-            margin-top: 20px;
+            margin-top: 15px;
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: none;
-            border-radius: 50px;
-            background: transparent;
+            border-radius: 8px;
+            background: var(--primary-color);
             color: white;
-            border: 1px solid var(--accent-color);
-            cursor: pointer;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
 
-        .btn-votar:hover {
-            background: var(--accent-color);
-            color: black;
-            box-shadow: 0 0 20px var(--accent-color);
+        .btn-votar:active {
+            transform: scale(0.95);
+            opacity: 0.8;
         }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            h1 { font-size: 1.2rem; letter-spacing: 4px; }
-            .grid-candidatos { grid-template-columns: 1fr; }
+        /* RESPONSIVO PARA MÓVIL */
+        @media (max-width: 400px) {
+            .grid-partidos {
+                grid-template-columns: 1fr 1fr; /* Dos columnas en celulares pequeños */
+                gap: 10px;
+            }
+            h1 { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="{{ url_for('static', filename='accion.png') }}" class="logo-small" alt="Acción Liberal">
+        {% if ciudad == 'LA PAZ' %}
+            <img src="{{ url_for('static', filename='lapaz.png') }}" class="logo-ciudad" alt="La Paz">
+        {% else %}
+            <img src="{{ url_for('static', filename='oruro.png') }}" class="logo-ciudad" alt="Oruro">
+        {% endif %}
         <h1>Consulta Ciudadana</h1>
-        <div class="ciudad-tag">{{ ciudad }}</div>
+        <div class="ciudad-badge">{{ ciudad }}</div>
     </header>
 
-    <main class="grid-candidatos">
+    <main class="grid-partidos">
         {% for partido in partidos %}
         <div class="card-partido">
-            <div class="partido-nombre">{{ partido.nombre }}</div>
-            
-            <div class="candidato-info">
-                <span class="label">Alcalde</span>
-                <span class="nombre">{{ partido.alcalde }}</span>
-            </div>
+            <div>
+                <div class="partido-titulo">{{ partido.nombre }}</div>
+                
+                <div class="info-candidato">
+                    <span class="label">Alcalde</span>
+                    <span class="nombre">{{ partido.alcalde }}</span>
+                </div>
 
-            <div class="candidato-info">
-                <span class="label">Concejal</span>
-                <span class="nombre">{{ partido.concejal }}</span>
+                <div class="info-candidato">
+                    <span class="label">Concejal</span>
+                    <span class="nombre">{{ partido.concejal }}</span>
+                </div>
             </div>
 
             <form action="/confirmar_voto" method="POST">
