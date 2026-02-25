@@ -6,16 +6,22 @@ from sqlalchemy import func
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_2026'
 
+# Configuración de Base de Datos para Render
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'sqlite:///local.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True, "connect_args": {"sslmode": "prefer"} if uri else {}}
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+    "connect_args": {"sslmode": "prefer"} if uri else {}
+}
 
 db = SQLAlchemy(app)
 
+# MODELOS
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -27,13 +33,18 @@ class Voto(db.Model):
     ci = db.Column(db.String(15), unique=True, nullable=False)
     apellido = db.Column(db.String(20), nullable=False)
     partido_id = db.Column(db.Integer, db.ForeignKey('partido.id'), nullable=False)
+    partido_rel = db.relationship('Partido', backref='votos_recibidos')
 
+# RUTAS
 @app.route('/')
 def index():
     return render_template('index.html', mensaje="SISTEMA LISTO")
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
+    # Asegura que la DB exista al primer acceso
+    db.create_all()
+    seed_data()
     partidos = Partido.query.filter_by(ciudad=ciudad.upper()).all()
     return render_template('votar.html', ciudad=ciudad.upper(), partidos=partidos)
 
@@ -42,8 +53,10 @@ def confirmar_voto():
     p_id = request.form.get('partido_id')
     apellido = request.form.get('apellido', '').strip().upper()
     ci = request.form.get('ci', '').strip().upper()
+
     if Voto.query.filter_by(ci=ci).first():
         return render_template('index.html', mensaje=f"EL CI {ci} YA VOTO Y GRACIAS")
+
     try:
         nuevo_voto = Voto(ci=ci, apellido=apellido, partido_id=p_id)
         db.session.add(nuevo_voto)
@@ -56,16 +69,24 @@ def confirmar_voto():
 @app.route('/reporte')
 def reporte():
     total = Voto.query.count()
-    votos_p = db.session.query(Partido.nombre, Partido.ciudad, func.count(Voto.id).label('t')).join(Voto).group_by(Partido.id).all()
-    resultados = [{'nombre': r.nombre, 'ciudad': r.ciudad, 'total': r.t, 'porcentaje': round((r.t/total*100), 2) if total > 0 else 0} for r in votos_p]
+    votos_query = db.session.query(
+        Partido.nombre, Partido.ciudad, func.count(Voto.id).label('t')
+    ).join(Voto).group_by(Partido.id).all()
+    
+    resultados = [{
+        'nombre': r.nombre, 
+        'ciudad': r.ciudad, 
+        'total': r.t,
+        'porcentaje': round((r.t/total*100), 2) if total > 0 else 0
+    } for r in votos_query]
+    
     return render_template('reporte.html', resultados=resultados, total_global=total)
 
-@app.before_request
-def setup():
-    db.create_all()
+# FUNCIÓN DE CARGA DE DATOS (SEEDER)
+def seed_data():
     if not Partido.query.first():
         datos = [
-            # --- ORURO ---
+            # ORURO
             ["FRI", "Rene Roberto Mamani", "ORURO"], ["LEAL", "Ademar Willcarani", "ORURO"],
             ["NGP", "Iván Quispe", "ORURO"], ["AORA", "Santiago Condori", "ORURO"],
             ["UN", "Enrique Urquidi", "ORURO"], ["AUPP", "Juan Carlos Choque", "ORURO"],
@@ -74,7 +95,7 @@ def setup():
             ["PATRIA", "Rafael Vargas", "ORURO"], ["LIBRE", "Rene Benjamin Guzman", "ORURO"],
             ["PP", "Carlos Aguilar", "ORURO"], ["SOMOS ORURO", "Marcelo Cortez", "ORURO"],
             ["JACHA", "Marcelo Medina", "ORURO"],
-            # --- LA PAZ ---
+            # LA PAZ
             ["Jallalla", "Jhonny Plata", "LA PAZ"], ["ASP", "Xavier Iturralde", "LA PAZ"],
             ["Venceremos", "Waldo Albarracín", "LA PAZ"], ["Somos La Paz", "Miguel Roca", "LA PAZ"],
             ["UPC", "Luis Eduardo Siles", "LA PAZ"], ["Libre", "Carlos Palenque", "LA PAZ"],
@@ -85,8 +106,11 @@ def setup():
             ["APB-Súmate", "Óscar Sogliano", "LA PAZ"], ["Alianza Patria", "Carlos Rivera", "LA PAZ"],
             ["Suma por el Bien Común", "Iván Arias", "LA PAZ"]
         ]
-        for d in datos: db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad=d[2]))
+        for d in datos:
+            db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad=d[2]))
         db.session.commit()
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
