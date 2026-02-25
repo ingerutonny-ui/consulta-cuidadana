@@ -20,9 +20,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
-        /* --- SPLASH SCREEN --- */
+        /* --- SPLASH SCREEN OPTIMIZADO --- */
         #splash {
             position: fixed;
             top: 0; left: 0;
@@ -35,11 +36,23 @@
             z-index: 9999;
         }
 
-        .logo-container { width: 150px; margin-bottom: 20px; }
+        /* Logo más grande y con resplandor */
+        .logo-container { 
+            width: 280px; /* Tamaño aumentado */
+            margin-bottom: 40px; 
+            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.3));
+        }
+
+        .progress-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
 
         .progress-container {
-            width: 200px;
-            height: 2px;
+            width: 250px;
+            height: 4px;
             background: #111;
             border-radius: 10px;
             overflow: hidden;
@@ -49,7 +62,16 @@
             width: 0%;
             height: 100%;
             background: var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* Estilo para el número de porcentaje */
+        #percent-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--accent-color);
         }
 
         /* --- CONTENIDO PRINCIPAL --- */
@@ -61,6 +83,7 @@
             flex-direction: column;
             align-items: center;
             padding: 30px 15px;
+            overflow-y: auto;
         }
 
         .header-box { text-align: center; margin-bottom: 25px; }
@@ -75,9 +98,9 @@
         .city-selection {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
             width: 100%;
-            max-width: 320px; /* Ancho ideal para móvil */
+            max-width: 320px;
         }
 
         .city-link { text-decoration: none; width: 100%; }
@@ -88,26 +111,25 @@
             border-radius: 12px;
             border: 1px solid rgba(0, 212, 255, 0.2);
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.2s, border 0.2s;
         }
 
-        /* CORRECCIÓN: Imagen completa sin recortes */
         .city-card img {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: contain; /* Muestra la imagen entera */
-            background-color: #000; /* Fondo negro por si la imagen es pequeña */
+            object-fit: contain;
+            background-color: #000;
         }
 
-        .city-card:active { transform: scale(0.98); }
+        .city-card:active { transform: scale(0.98); border-color: var(--accent-color); }
 
         .city-name {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             font-weight: bold;
             letter-spacing: 3px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             font-size: 0.9rem;
             color: var(--accent-color);
         }
@@ -119,8 +141,11 @@
         <div class="logo-container">
             <img src="{{ url_for('static', filename='accion.png') }}" alt="Logo" style="width: 100%;">
         </div>
-        <div class="progress-container">
-            <div class="progress-bar" id="bar"></div>
+        <div class="progress-wrapper">
+            <div id="percent-text">0%</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="bar"></div>
+            </div>
         </div>
     </div>
 
@@ -151,19 +176,28 @@
         window.onload = function() {
             let width = 0;
             const bar = document.getElementById('bar');
+            const percentText = document.getElementById('percent-text');
             const splash = document.getElementById('splash');
             const main = document.getElementById('main-content');
 
             const interval = setInterval(() => {
                 if (width >= 100) {
                     clearInterval(interval);
-                    splash.style.display = 'none';
-                    main.style.display = 'flex';
+                    // Pequeña pausa al llegar al 100 para que se vea antes de ocultar
+                    setTimeout(() => {
+                        splash.style.transition = 'opacity 0.5s';
+                        splash.style.opacity = '0';
+                        setTimeout(() => {
+                            splash.style.display = 'none';
+                            main.style.display = 'flex';
+                        }, 500);
+                    }, 200);
                 } else {
-                    width += 2;
+                    width += 1;
                     bar.style.width = width + '%';
+                    percentText.innerHTML = width + '%';
                 }
-            }, 20);
+            }, 30); // 30ms * 100 = 3 segundos aprox
         }
     </script>
 </body>
