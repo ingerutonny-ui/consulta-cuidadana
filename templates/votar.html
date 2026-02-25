@@ -3,54 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONSULTA - {{ ciudad }}</title>
+    <title>VOTACIÓN - {{ ciudad }}</title>
     <style>
         body { 
-            background: radial-gradient(circle, #8b0000 0%, #000000 100%); 
+            background: linear-gradient(180deg, #660000 0%, #000000 100%); 
             font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 0; padding: 20px; color: white; min-height: 100vh;
         }
-
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { color: white; letter-spacing: 4px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); margin: 0; }
-        .badge { background: #d90429; color: white; padding: 5px 25px; border-radius: 20px; font-weight: bold; display: inline-block; margin-top: 10px; box-shadow: 0 0 15px rgba(217, 4, 41, 0.5); }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 25px;
-            max-width: 1300px;
-            width: 100%;
+            padding: 20px;
         }
 
-        /* BOTONES FLOTANTES */
-        .tarjeta {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            height: 400px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
+        /* ESTILO NANCY: BOTONES FLOTANTES */
+        .boton-flotante {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            height: 380px;
             display: flex;
             flex-direction: column;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .tarjeta:hover {
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(217, 4, 41, 0.3);
-            border: 1px solid rgba(217, 4, 41, 0.5);
+        .boton-flotante:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 30px rgba(217, 4, 41, 0.4);
+            border: 1px solid #ff4d4d;
         }
 
-        .img-area {
+        .imagen {
             flex-grow: 1;
             background-size: contain;
             background-repeat: no-repeat;
@@ -58,104 +48,53 @@
             margin: 15px;
         }
 
-        /* BOTÓN VOTAR CON EFECTO GLOW */
-        .votar-overlay {
+        /* EFECTO VOTAR GLOW */
+        .votar-glow {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0);
             background: #d90429;
             color: white;
-            padding: 15px 35px;
+            padding: 12px 30px;
             border-radius: 50px;
-            font-weight: 900;
-            font-size: 1.3rem;
-            box-shadow: 0 0 30px #d90429;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 5;
+            font-weight: bold;
+            box-shadow: 0 0 25px #ff0000;
+            transition: 0.3s;
+            z-index: 10;
         }
 
-        .tarjeta:hover .votar-overlay {
+        .boton-flotante:hover .votar-glow {
             transform: translate(-50%, -50%) scale(1);
         }
 
         .info {
+            background: rgba(0, 0, 0, 0.5);
             padding: 15px;
-            background: rgba(0, 0, 0, 0.6);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
             text-align: center;
-            color: white;
         }
 
-        .p-nom { font-weight: bold; font-size: 1.1rem; color: #ff4d4d; margin-bottom: 5px; }
-        .a-nom { font-size: 0.85rem; opacity: 0.8; }
-
-        @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 700px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        .p-nom { font-weight: bold; color: #ff4d4d; font-size: 1.1rem; }
     </style>
 </head>
 <body>
-
-<header>
-    <h1>PAPELETA ELECTORAL</h1>
-    <div class="badge">{{ ciudad }}</div>
-</header>
-
-<div class="grid">
-    {% for p in partidos %}
-        {% set img = 'accion.png' %}
-        
-        {# MAPEO DE 32 CANDIDATOS #}
-        {% if ciudad == 'ORURO' %}
-            {% if p.nombre == 'FRI' %}{% set img = 'OR-FRI.png' %}
-            {% elif p.nombre == 'LEAL' %}{% set img = 'OR-LEAL.png' %}
-            {% elif p.nombre == 'NGP' %}{% set img = 'OR-NGP.png' %}
-            {% elif p.nombre == 'AORA' %}{% set img = 'OR-AORA.png' %}
-            {% elif p.nombre == 'UN' %}{% set img = 'OR-UN.png' %}
-            {% elif p.nombre == 'AUPP' %}{% set img = 'OR-AUPP.png' %}
-            {% elif p.nombre == 'UCS' %}{% set img = 'OR-UCS.png' %}
-            {% elif p.nombre == 'BST' %}{% set img = 'OR-BST.png' %}
-            {% elif p.nombre == 'SUMATE' %}{% set img = 'OR-SUMATE.png' %}
-            {% elif p.nombre == 'MTS' %}{% set img = 'OR-MTS.png' %}
-            {% elif p.nombre == 'PATRIA' %}{% set img = 'OR-PATRIA.png' %}
-            {% elif p.nombre == 'LIBRE' %}{% set img = 'OR-LIBRE.png' %}
-            {% elif p.nombre == 'PP' %}{% set img = 'OR-PP.png' %}
-            {% elif p.nombre == 'SOMOS ORURO' %}{% set img = 'OR-SOMOS.png' %}
-            {% elif p.nombre == 'JACHA' %}{% set img = 'OR-JACHA.png' %}
-            {% endif %}
-        {% elif ciudad == 'LA PAZ' %}
-            {% if p.nombre == 'Jallalla' %}{% set img = 'LP-JALLALLA.png' %}
-            {% elif p.nombre == 'ASP' %}{% set img = 'LP-ASP.png' %}
-            {% elif p.nombre == 'Venceremos' %}{% set img = 'LP-VENCEREMOS.png' %}
-            {% elif p.nombre == 'Somos La Paz' %}{% set img = 'LP-SOMOSLP.png' %}
-            {% elif p.nombre == 'UPC' %}{% set img = 'LP-UPC.png' %}
-            {% elif p.nombre == 'Libre' %}{% set img = 'LP-LIBRE.png' %}
-            {% elif p.nombre == 'A-UPP' %}{% set img = 'LP-AUPP.png' %}
-            {% elif p.nombre == 'Innovación Humana' %}{% set img = 'LP-IH.png' %}
-            {% elif p.nombre == 'VIDA' %}{% set img = 'LP-VIDA.png' %}
-            {% elif p.nombre == 'FRI' %}{% set img = 'LP-FRI.png' %}
-            {% elif p.nombre == 'PDC' %}{% set img = 'LP-PDC.png' %}
-            {% elif p.nombre == 'MTS' %}{% set img = 'LP-MTS.png' %}
-            {% elif p.nombre == 'NGP' %}{% set img = 'LP-NGP.png' %}
-            {% elif p.nombre == 'MPS' %}{% set img = 'LP-MPS.png' %}
-            {% elif p.nombre == 'APB-Súmate' %}{% set img = 'LP-SUMATE.png' %}
-            {% elif p.nombre == 'Alianza Patria' %}{% set img = 'LP-PATRIA.png' %}
-            {% elif p.nombre == 'Suma por el Bien Común' %}{% set img = 'LP-SUMA.png' %}
-            {% endif %}
-        {% endif %}
-
-        <div class="tarjeta" onclick="this.querySelector('form').submit();">
-            <div class="votar-overlay">VOTAR</div>
-            <div class="img-area" style="background-image: url('/static/{{ img }}');"></div>
-            <form action="/confirmar_voto" method="POST">
-                <input type="hidden" name="partido_id" value="{{ p.id }}">
-            </form>
-            <div class="info">
-                <div class="p-nom">{{ p.nombre }}</div>
-                <div class="a-nom">{{ p.alcalde }}</div>
+    <h1 style="text-align:center; letter-spacing:3px;">{{ ciudad }}</h1>
+    <div class="grid">
+        {% for p in partidos %}
+            {% set img = 'OR-' + p.nombre + '.png' if ciudad == 'ORURO' else 'LP-' + p.nombre + '.png' %}
+            <div class="boton-flotante" onclick="this.querySelector('form').submit();">
+                <div class="votar-glow">VOTAR</div>
+                <div class="imagen" style="background-image: url('/static/{{ img }}');"></div>
+                <div class="info">
+                    <div class="p-nom">{{ p.nombre }}</div>
+                    <div style="font-size:0.8rem;">{{ p.alcalde }}</div>
+                    <form action="/confirmar_voto" method="POST">
+                        <input type="hidden" name="partido_id" value="{{ p.id }}">
+                    </form>
+                </div>
             </div>
-        </div>
-    {% endfor %}
-</div>
-
+        {% endfor %}
+    </div>
 </body>
 </html>
