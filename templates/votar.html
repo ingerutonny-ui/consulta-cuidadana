@@ -6,91 +6,49 @@
     <title>VOTACIÓN - {{ ciudad }}</title>
     <style>
         :root { --accent: #d90429; }
-        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
         
-        h1 { color: #1a1a1a; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
-        .ciudad-badge { background: var(--accent); color: white; padding: 5px 20px; border-radius: 50px; font-size: 1.2rem; margin-bottom: 20px; }
+        h1 { font-weight: 900; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; }
 
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
-            gap: 25px; 
-            width: 100%; 
-            max-width: 1300px; 
-            padding: 20px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; width: 100%; max-width: 1400px; }
         
-        /* TARJETA DE PARTIDO */
         .tarjeta {
-            background: white; border-radius: 30px; border: 2px solid #eee;
-            padding: 25px; text-align: center; cursor: pointer; transition: 0.4s;
-            display: flex; flex-direction: column; align-items: center;
+            background: white; border-radius: 35px; border: 2px solid #eee;
+            padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.4s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            position: relative; overflow: hidden;
         }
-        .tarjeta:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .tarjeta:hover { transform: translateY(-10px); border-color: var(--accent); }
 
-        /* LOGO DEL PARTIDO */
-        .logo-candidato { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-        .logo-candidato img { max-width: 90%; max-height: 100%; object-fit: contain; }
+        /* DISEÑO DE TEXTO SOLICITADO */
+        .p-nom { color: #aaa; font-weight: 600; font-size: 1.2rem; text-transform: uppercase; margin-bottom: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
+        .a-nom { color: #000; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; line-height: 1.1; margin-bottom: 30px; }
 
-        .p-nom { color: #000; font-weight: 900; font-size: 1.5rem; margin: 5px 0; line-height: 1; }
-        .a-nom { color: #666; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 20px; font-weight: 600; }
-
-        /* EL BOTÓN SOLICITADO */
         .btn-voto-accion {
-            background: var(--accent); color: white; padding: 12px 40px; 
-            border-radius: 15px; font-weight: 900; font-size: 1.1rem; 
-            letter-spacing: 1px; transition: 0.3s; width: 80%;
-            box-shadow: 0 5px 15px rgba(217, 4, 41, 0.3);
+            background: var(--accent); color: white; padding: 15px 0; 
+            border-radius: 20px; font-weight: 900; font-size: 1.2rem; 
+            letter-spacing: 2px; width: 85%; box-shadow: 0 10px 20px rgba(217, 4, 41, 0.2);
         }
-        .tarjeta:hover .btn-voto-accion { background: #b80322; transform: scale(1.05); }
 
-        /* MODAL DE REGISTRO */
-        #modalVoto { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.8); z-index: 2000; justify-content: center; 
-            align-items: center; backdrop-filter: blur(15px); 
-        }
-        .modal-content { 
-            background: white; width: 90%; max-width: 450px; padding: 40px; 
-            border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.2); 
-            text-align: center; border: 1px solid #eee;
-        }
-        .modal-content img { height: 120px; margin-bottom: 20px; object-fit: contain; }
-        
-        input, select { 
-            width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; 
-            border-radius: 15px; font-size: 1rem; box-sizing: border-box;
-        }
-        .btn-submit { 
-            background: #222; color: white; border: none; padding: 18px; 
-            width: 100%; border-radius: 15px; font-weight: bold; 
-            font-size: 1.2rem; cursor: pointer; margin-top: 15px; transition: 0.3s;
-        }
+        /* MODAL MAYÚSCULAS */
+        input { text-transform: uppercase; } /* Fuerza visualmente en el cliente */
+
+        #modalVoto { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(15px); }
+        .modal-content { background: white; width: 90%; max-width: 500px; padding: 50px; border-radius: 50px; box-shadow: 0 40px 100px rgba(0,0,0,0.15); text-align: center; }
+        input, select { width: 100%; padding: 18px; margin: 12px 0; border: 2px solid #eee; border-radius: 20px; font-size: 1.1rem; font-weight: 600; box-sizing: border-box; }
+        .btn-submit { background: #111; color: white; border: none; padding: 22px; width: 100%; border-radius: 20px; font-weight: 900; font-size: 1.3rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .btn-submit:hover { background: var(--accent); }
-
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            .tarjeta { padding: 20px; }
-        }
     </style>
 </head>
 <body>
 
-    <h1>PAPELETA DIGITAL</h1>
-    <div class="ciudad-badge">{{ ciudad }}</div>
+    <h1>PAPELETA DIGITAL - <span style="color:var(--accent)">{{ ciudad }}</span></h1>
 
     <div class="grid">
         {% for p in partidos %}
-        {% set img_path = 'OR-' + p.nombre + '.png' if ciudad == 'ORURO' else 'LP-' + p.nombre + '.png' %}
-        <div class="tarjeta" onclick="abrirModal('{{ p.id }}', '{{ p.nombre }}', '/static/{{ img_path }}')">
-            <div class="logo-candidato">
-                <img src="/static/{{ img_path }}" onerror="this.src='/static/accion.png'">
-            </div>
+        <div class="tarjeta" onclick="abrirModal('{{ p.id }}', '{{ p.nombre }}', '{{ p.alcalde }}')">
             <div class="p-nom">{{ p.nombre }}</div>
             <div class="a-nom">{{ p.alcalde }}</div>
-            
             <div class="btn-voto-accion">VOTAR</div>
         </div>
         {% endfor %}
@@ -98,41 +56,28 @@
 
     <div id="modalVoto">
         <div class="modal-content">
-            <img id="modal-img" src="">
-            <h2 id="modal-partido" style="font-weight: 900; margin-bottom: 25px;"></h2>
-            
+            <h2 id="modal-partido" style="font-weight: 900; margin-bottom: 30px; text-transform: uppercase;"></h2>
             <form action="/confirmar_voto" method="POST">
                 <input type="hidden" name="partido_id" id="form-p-id">
-                <input type="text" name="nombres" placeholder="NOMBRES" required autocomplete="off">
-                <input type="text" name="apellido" placeholder="APELLIDOS" required autocomplete="off">
-                <input type="text" name="ci" placeholder="NÚMERO DE C.I." required autocomplete="off">
-                <input type="tel" name="celular" placeholder="NÚMERO DE CELULAR" required>
-                
-                <select name="genero" required>
-                    <option value="" disabled selected>GÉNERO</option>
-                    <option>MASCULINO</option>
-                    <option>FEMENINO</option>
-                </select>
-                
-                <input type="number" name="edad" placeholder="EDAD" required min="18" max="110">
-                
-                <button type="submit" class="btn-submit">REGISTRAR MI VOTO</button>
+                <input type="text" name="nombres" placeholder="NOMBRES" required>
+                <input type="text" name="apellido" placeholder="APELLIDOS" required>
+                <input type="text" name="ci" placeholder="C.I." required>
+                <input type="tel" name="celular" placeholder="CELULAR" required>
+                <select name="genero" required><option value="" disabled selected>GÉNERO</option><option value="MASCULINO">MASCULINO</option><option value="FEMENINO">FEMENINO</option></select>
+                <input type="number" name="edad" placeholder="EDAD" required min="18">
+                <button type="submit" class="btn-submit">REGISTRAR VOTO</button>
             </form>
-            
-            <p onclick="cerrarModal()" style="color:#999; cursor:pointer; margin-top:25px; font-weight: bold;"><u>CANCELAR Y VOLVER</u></p>
+            <p onclick="cerrarModal()" style="color:#999; cursor:pointer; margin-top:30px; font-weight: 900;">CANCELAR</p>
         </div>
     </div>
 
     <script>
-        function abrirModal(id, nombre, img) {
+        function abrirModal(id, partido, alcalde) {
             document.getElementById('form-p-id').value = id;
-            document.getElementById('modal-partido').innerText = "VOTAR POR: " + nombre;
-            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-partido').innerText = "VOTO POR: " + alcalde;
             document.getElementById('modalVoto').style.display = 'flex';
         }
-        function cerrarModal() {
-            document.getElementById('modalVoto').style.display = 'none';
-        }
+        function cerrarModal() { document.getElementById('modalVoto').style.display = 'none'; }
     </script>
 </body>
 </html>
