@@ -1,11 +1,11 @@
 import os
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_2026'
 
-# Configuración de base de datos
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -20,12 +20,12 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 
 db = SQLAlchemy(app)
 
-# MODELOS
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
     alcalde = db.Column(db.String(100))
     ciudad = db.Column(db.String(50))
+    votos = db.relationship('Voto', backref='partido', lazy=True)
 
 class Voto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,7 +33,46 @@ class Voto(db.Model):
     apellido = db.Column(db.String(20), nullable=False)
     partido_id = db.Column(db.Integer, db.ForeignKey('partido.id'), nullable=False)
 
-# INICIALIZACIÓN
+@app.route('/')
+def index():
+    return render_template('index.html', mensaje="SISTEMA LISTO")
+
+@app.route('/votar/<ciudad>')
+def votar(ciudad):
+    partidos = Partido.query.filter_by(ciudad=ciudad.upper()).all()
+    return render_template('votar.html', ciudad=ciudad.upper(), partidos=partidos)
+
+@app.route('/confirmar_voto', methods=['POST'])
+def confirmar_voto():
+    p_id = request.form.get('partido_id')
+    apellido = request.form.get('apellido').strip().upper()
+    ci = request.form.get('ci').strip().upper()
+
+    existe = Voto.query.filter_by(ci=ci).first()
+    if existe:
+        return render_template('index.html', mensaje=f"EL CI {ci} YA VOTO Y GRACIAS")
+
+    try:
+        nuevo_voto = Voto(ci=ci, apellido=apellido, partido_id=p_id)
+        db.session.add(nuevo_voto)
+        db.session.commit()
+        return render_template('index.html', mensaje="VOTO REGISTRADO EXITOSAMENTE")
+    except Exception:
+        db.session.rollback()
+        return render_template('index.html', mensaje="ERROR EN EL REGISTRO")
+
+# RUTA DE REPORTES
+@app.route('/reporte')
+def reporte():
+    # Conteo de votos agrupados por partido
+    resultados = db.session.query(
+        Partido.nombre, 
+        Partido.ciudad, 
+        func.count(Voto.id).label('total')
+    ).join(Voto).group_by(Partido.id).order_by(func.count(Voto.id).desc()).all()
+    
+    return render_template('reporte.html', resultados=resultados)
+
 def init_db():
     with app.app_context():
         db.create_all()
@@ -59,37 +98,6 @@ def init_db():
             for d in datos:
                 db.session.add(Partido(nombre=d[0], alcalde=d[1], ciudad=d[2]))
             db.session.commit()
-
-# RUTAS
-@app.route('/')
-def index():
-    return render_template('index.html', mensaje="SISTEMA LISTO")
-
-@app.route('/votar/<ciudad>')
-def votar(ciudad):
-    partidos = Partido.query.filter_by(ciudad=ciudad.upper()).all()
-    return render_template('votar.html', ciudad=ciudad.upper(), partidos=partidos)
-
-@app.route('/confirmar_voto', methods=['POST'])
-def confirmar_voto():
-    p_id = request.form.get('partido_id')
-    apellido = request.form.get('apellido').strip().upper()
-    ci = request.form.get('ci').strip().upper()
-
-    # Verificar si el CI ya existe
-    existe = Voto.query.filter_by(ci=ci).first()
-    if existe:
-        return render_template('index.html', mensaje=f"EL CI {ci} YA VOTO Y GRACIAS")
-
-    try:
-        nuevo_voto = Voto(ci=ci, apellido=apellido, partido_id=p_id)
-        db.session.add(nuevo_voto)
-        db.session.commit()
-        partido = Partido.query.get(p_id)
-        return render_template('index.html', mensaje=f"VOTO REGISTRADO POR {partido.nombre}")
-    except Exception:
-        db.session.rollback()
-        return render_template('index.html', mensaje="ERROR AL REGISTRAR VOTO")
 
 init_db()
 
