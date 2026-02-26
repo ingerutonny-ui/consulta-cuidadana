@@ -29,7 +29,6 @@ def enviar_whatsapp(numero, ci):
 def obtener_partidos(ciudad):
     ciudad_upper = ciudad.upper()
     if "LA PAZ" in ciudad_upper:
-        # LISTA LA PAZ SEGÚN TABLA OFICIAL (image_515168.png)
         return [
             {"id": 101, "nombre": "JALLALLA", "alcalde": "JHONNY PLATA"},
             {"id": 102, "nombre": "ASP", "alcalde": "XAVIER ITURRALDE"},
@@ -50,7 +49,6 @@ def obtener_partidos(ciudad):
             {"id": 117, "nombre": "SUMA POR EL BIEN COMÚN", "alcalde": "IVÁN ARIAS"}
         ]
     else:
-        # LISTA ORURO SEGÚN TABLA OFICIAL (image_514dfc.png)
         return [
             {"id": 1, "nombre": "FRI", "alcalde": "RENE ROBERTO MAMANI LLAVE"},
             {"id": 2, "nombre": "LEAL", "alcalde": "ADEMAR WILLCARANI MORALES"},
@@ -97,7 +95,7 @@ def confirmar_voto():
         conn.commit()
         cur.close()
         conn.close()
-
+        
         enviar_whatsapp(celular, ci)
         return redirect(url_for('index', msg_type='success', ci=ci))
     except:
@@ -127,4 +125,6 @@ def reporte():
         return "Error en reporte", 500
 
 if __name__ == '__main__':
-    app.run()
+    # Configuración de puerto para Render
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
