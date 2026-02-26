@@ -5,7 +5,13 @@
     <title>SISTEMA DE VOTACIÓN {{ ciudad }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root { --dark: #000; --soft-bg: #f8f9fa; --border: #eeeeee; --rojo-suave: #ffcccc; --rojo-hover: #ffb3b3; }
+        :root { 
+            --dark: #000; 
+            --soft-bg: #f8f9fa; 
+            --border: #eeeeee; 
+            --rojo-voto: #ff0000; /* Rojo sólido solicitado */
+            --rojo-hover: #cc0000; 
+        }
         body { font-family: 'Segoe UI', sans-serif; background: #ffffff; margin: 0; padding: 20px; }
         header { text-align: center; border-bottom: 3px solid var(--dark); padding-bottom: 15px; margin-bottom: 30px; }
         h1 { text-transform: uppercase; font-weight: 900; font-size: 2rem; }
@@ -27,11 +33,19 @@
         .sigla { font-size: 1.5rem; font-weight: 900; color: var(--dark); }
         .nombre-c { font-size: 0.65rem; text-transform: uppercase; color: #666; font-weight: 700; margin: 5px 0 15px; }
 
-        /* BOTÓN VOTAR ROJO SUAVE */
+        /* BOTÓN VOTAR ROJO CON LETRAS BLANCAS */
         .btn-abrir-voto { 
-            background: var(--rojo-suave); color: #b30000; padding: 12px 20px; border: none; 
-            border-radius: 10px; font-weight: 800; font-size: 0.85rem; 
-            cursor: pointer; text-transform: uppercase; width: 90%; transition: 0.3s;
+            background: var(--rojo-voto); 
+            color: #ffffff; /* Letras blancas solicitadas */
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 800; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            width: 90%; 
+            transition: 0.3s;
         }
         .btn-abrir-voto:hover { background: var(--rojo-hover); }
 
@@ -44,7 +58,7 @@
 
         .btn-confirmar { background: var(--dark); color: #fff; padding: 20px; border: none; border-radius: 15px; font-weight: 900; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
 
-        /* RESPONSIVIDAD PARA CELULARES */
+        /* RESPONSIVIDAD */
         @media (max-width: 1100px) { .grid-candidatos { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) { .grid-candidatos { grid-template-columns: repeat(2, 1fr); } h1 { font-size: 1.5rem; } }
         @media (max-width: 480px) { .grid-candidatos { grid-template-columns: 1fr; } .modal-content { padding: 20px; width: 90%; } }
