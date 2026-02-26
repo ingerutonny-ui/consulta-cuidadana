@@ -34,25 +34,24 @@ class Voto(db.Model):
 
 def restaurar_datos():
     db.create_all()
-    # Mapeo completo: 15 de Oruro y 17 de La Paz
     data = [
-        # ORURO
-        {'n': 'FRI', 'a': 'RENE ROBERTO MAMANI LLAVE', 'c': 'ORURO'}, # P1
-        {'n': 'LEAL', 'a': 'ADEMAR WILLCARANI MORALES', 'c': 'ORURO'}, # P2
-        {'n': 'NGP', 'a': 'IVÁN QUISPE GUTIÉRREZ', 'c': 'ORURO'}, # P3
-        {'n': 'AORA', 'a': 'SANTIAGO CONDORI APAZA', 'c': 'ORURO'}, # P4
-        {'n': 'UN', 'a': 'ENRIQUE FERNANDO URQUIDI DAZA', 'c': 'ORURO'}, # P5
-        {'n': 'AUPP', 'a': 'JUAN CARLOS CHOQUE ZUBIETA', 'c': 'ORURO'}, # P6
-        {'n': 'UCS', 'a': 'LINO MARCOS MAIN ADRIÁN', 'c': 'ORURO'}, # P7
-        {'n': 'SUMATE', 'a': 'OSCAR MIGUEL TOCO CHOQUE', 'c': 'ORURO'}, # P9
-        {'n': 'MTS', 'a': 'OLIVER OSCAR POMA CARTAGENA', 'c': 'ORURO'}, # P10
-        {'n': 'PATRIA ORURO', 'a': 'RAFAEL VARGAS VILLEGAS', 'c': 'ORURO'}, # P11
-        {'n': 'LIBRE', 'a': 'RENE BENJAMIN GUZMAN VARGAS', 'c': 'ORURO'}, # P12
-        {'n': 'PP', 'a': 'CARLOS AGUILAR', 'c': 'ORURO'}, # P13
-        {'n': 'SOMOS ORURO', 'a': 'MARCELO CORTEZ GUTIÉRREZ', 'c': 'ORURO'}, # P14
-        {'n': 'JACHA', 'a': 'MARCELO FERNANDO MEDINA CENTELLAS', 'c': 'ORURO'}, # P15
+        # ORURO (P1 al P15 según PDF oficial)
+        {'n': 'FRI', 'a': 'RENE ROBERTO MAMANI LLAVE', 'c': 'ORURO'},
+        {'n': 'LEAL', 'a': 'ADEMAR WILLCARANI MORALES', 'c': 'ORURO'},
+        {'n': 'NGP', 'a': 'IVÁN QUISPE GUTIÉRREZ', 'c': 'ORURO'},
+        {'n': 'AORA', 'a': 'SANTIAGO CONDORI APAZA', 'c': 'ORURO'},
+        {'n': 'UN', 'a': 'ENRIQUE FERNANDO URQUIDI DAZA', 'c': 'ORURO'},
+        {'n': 'AUPP', 'a': 'JUAN CARLOS CHOQUE ZUBIETA', 'c': 'ORURO'},
+        {'n': 'UCS', 'a': 'LINO MARCOS MAIN ADRIÁN', 'c': 'ORURO'},
+        {'n': 'SUMATE', 'a': 'OSCAR MIGUEL TOCO CHOQUE', 'c': 'ORURO'},
+        {'n': 'MTS', 'a': 'OLIVER OSCAR POMA CARTAGENA', 'c': 'ORURO'},
+        {'n': 'PATRIA ORURO', 'a': 'RAFAEL VARGAS VILLEGAS', 'c': 'ORURO'},
+        {'n': 'LIBRE', 'a': 'RENE BENJAMIN GUZMAN VARGAS', 'c': 'ORURO'},
+        {'n': 'PP', 'a': 'CARLOS AGUILAR', 'c': 'ORURO'},
+        {'n': 'SOMOS ORURO', 'a': 'MARCELO CORTEZ GUTIÉRREZ', 'c': 'ORURO'},
+        {'n': 'JACHA', 'a': 'MARCELO FERNANDO MEDINA CENTELLAS', 'c': 'ORURO'},
         {'n': 'SOL.BO', 'a': 'MARCELO MEDINA', 'c': 'ORURO'},
-        # LA PAZ
+        # LA PAZ (17 Candidatos validados)
         {'n': 'JALLALLA', 'a': 'SANTOS QUISPE', 'c': 'LA PAZ'},
         {'n': 'ASP', 'a': 'XAVIER ITURRALDE', 'c': 'LA PAZ'},
         {'n': 'VENCEREMOS', 'a': 'WALDO ALBARRACIN', 'c': 'LA PAZ'},
@@ -111,12 +110,17 @@ def confirmar_voto():
 
 @app.route('/reporte')
 def reporte():
-    resultados = db.session.query(
-        Partido.nombre, 
-        Partido.ciudad, 
-        db.func.count(Voto.id).label('total')
-    ).outerjoin(Voto).group_by(Partido.id).order_by(db.func.count(Voto.id).desc()).all()
-    return render_template('reporte.html', resultados=resultados)
+    # Datos Oruro
+    res_oruro = db.session.query(
+        Partido.nombre, Partido.alcalde, db.func.count(Voto.id).label('total')
+    ).outerjoin(Voto).filter(Partido.ciudad == 'ORURO').group_by(Partido.id).all()
+    
+    # Datos La Paz
+    res_lapaz = db.session.query(
+        Partido.nombre, Partido.alcalde, db.func.count(Voto.id).label('total')
+    ).outerjoin(Voto).filter(Partido.ciudad == 'LA PAZ').group_by(Partido.id).all()
+
+    return render_template('reporte.html', res_oruro=res_oruro, res_lapaz=res_lapaz)
 
 if __name__ == '__main__':
     with app.app_context():
