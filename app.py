@@ -10,26 +10,28 @@ def get_db_connection():
 def obtener_partidos(ciudad):
     ciudad_upper = ciudad.upper()
     if "LA PAZ" in ciudad_upper:
+        # LISTA OFICIAL LA PAZ - 17 CANDIDATOS COMPLETOS
         return [
-            {"id": 101, "nombre": "JALLALLA", "alcalde": "JHONNY PLATA"},
-            {"id": 102, "nombre": "ASP", "alcalde": "XAVIER ITURRALDE"},
-            {"id": 103, "nombre": "VENCEREMOS", "alcalde": "WALDO ALBARRACÍN"},
-            {"id": 104, "nombre": "SOMOS LA PAZ", "alcalde": "MIGUEL ROCA"},
-            {"id": 105, "nombre": "UPC", "alcalde": "LUIS EDUARDO 'CHICHI' SILES"},
-            {"id": 106, "nombre": "LIBRE", "alcalde": "CARLOS 'CAE' PALENQUE"},
+            {"id": 101, "nombre": "JALLALLA", "alcalde": "DAVID CASTRO"},
+            {"id": 102, "nombre": "ASP", "alcalde": "ANA MARÍA QUINTEROS"},
+            {"id": 103, "nombre": "VENCEREMOS", "alcalde": "AMILCAR BARRAL"},
+            {"id": 104, "nombre": "SOMOS LA PAZ", "alcalde": "CÉSAR DOCKWEILER"},
+            {"id": 105, "nombre": "UPC", "alcalde": "FRANKLIN GUTIÉRREZ"},
+            {"id": 106, "nombre": "LIBRE", "alcalde": "PETER MALDONADO"},
             {"id": 107, "nombre": "A-UPP", "alcalde": "ISAAC FERNÁNDEZ"},
-            {"id": 108, "nombre": "INNOVACIÓN HUMANA", "alcalde": "CÉSAR DOCKWEILER"},
-            {"id": 109, "nombre": "VIDA", "alcalde": "FERNANDO VALENCIA"},
-            {"id": 110, "nombre": "FRI", "alcalde": "RAÚL DAZA"},
-            {"id": 111, "nombre": "PDC", "alcalde": "MARIO SILVA"},
-            {"id": 112, "nombre": "MTS", "alcalde": "JORGE DULON"},
+            {"id": 108, "nombre": "PAN-BOL", "alcalde": "ABDÓN REYNAGA"},
+            {"id": 109, "nombre": "VIDA", "alcalde": "SANTIAGO QUIHUARES"},
+            {"id": 110, "nombre": "FRI", "alcalde": "WALDO ALBARRACÍN"},
+            {"id": 111, "nombre": "PDC", "alcalde": "LUIS LARREA"},
+            {"id": 112, "nombre": "MTS", "alcalde": "RONALD ESCOBAR"},
             {"id": 113, "nombre": "NGP", "alcalde": "HERNÁN RODRIGO RIVERA"},
             {"id": 114, "nombre": "MPS", "alcalde": "RICARDO CUEVAS"},
-            {"id": 115, "nombre": "APB-SÚMATE", "alcalde": "ÓSCAR SOGLIANO"},
-            {"id": 116, "nombre": "ALIANZA PATRIA", "alcalde": "CARLOS NEMO RIVERA"},
+            {"id": 115, "nombre": "SOL.BO", "alcalde": "ALVARO BLONDEL"},
+            {"id": 116, "nombre": "UN", "alcalde": "SAMUEL DORIA MEDINA (L)"},
             {"id": 117, "nombre": "SUMA POR EL BIEN COMÚN", "alcalde": "IVÁN ARIAS"}
         ]
     else:
+        # LISTA OFICIAL ORURO - 14 CANDIDATOS (N°8 ELIMINADO)
         return [
             {"id": 1, "nombre": "FRI", "alcalde": "RENE ROBERTO MAMANI LLAVE"},
             {"id": 2, "nombre": "LEAL", "alcalde": "ADEMAR WILLCARANI MORALES"},
@@ -63,17 +65,16 @@ def confirmar_voto():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # --- PASO CRUCIAL: VERIFICAR SI EL CI YA EXISTE ---
+        # VALIDACIÓN DE CI DUPLICADO
         cur.execute("SELECT ci FROM votos WHERE ci = %s", (ci,))
         existe = cur.fetchone()
         
         if existe:
             cur.close()
             conn.close()
-            # Si existe, mandamos el msg_type='error' para activar el aviso rojo
             return redirect(url_for('index', msg_type='error', ci=ci))
         
-        # --- SI NO EXISTE, PROCEDEMOS AL INSERT ---
+        # INSERCIÓN SI NO EXISTE
         cur.execute('''INSERT INTO votos (ci, nombres, apellido, edad, genero, celular, partido_id) 
                        VALUES (%s, %s, %s, %s, %s, %s, %s)''', 
                     (ci, request.form['nombres'].upper(), request.form['apellido'].upper(), 
@@ -85,7 +86,6 @@ def confirmar_voto():
         return redirect(url_for('index', msg_type='success', ci=ci))
         
     except Exception as e:
-        print(f"Error en BD: {e}")
         return redirect(url_for('index', msg_type='error', ci=ci))
 
 @app.route('/reporte')
