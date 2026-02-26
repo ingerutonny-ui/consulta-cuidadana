@@ -31,7 +31,9 @@
             min-height: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
         .sigla { font-size: 1.5rem; font-weight: 900; color: var(--dark); }
-        .nombre-c { font-size: 0.65rem; text-transform: uppercase; color: #666; font-weight: 700; margin: 5px 0 15px; }
+        
+        /* CAMBIO: Se agrandó el nombre del candidato */
+        .nombre-c { font-size: 1rem; text-transform: uppercase; color: #333; font-weight: 800; margin: 5px 0 15px; }
 
         /* BOTÓN VOTAR ROJO CON LETRAS BLANCAS */
         .btn-abrir-voto { 
@@ -65,7 +67,7 @@
     </style>
 </head>
 <body>
-    <header><h1>CIUDAD DE: {{ ciudad }}</h1></header>
+    <header><h1>MUNICIPIO DE : {{ ciudad }}</h1></header>
 
     <div class="grid-candidatos">
         {% for p in partidos %}
