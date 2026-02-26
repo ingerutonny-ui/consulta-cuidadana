@@ -3,9 +3,9 @@ import os
 
 app = Flask(__name__)
 
-# BASE DE DATOS CON 15 PARA ORURO Y 15 PARA LA PAZ (DISEÑO 3X5)
+# BASE DE DATOS COMPLETA 15 ORURO / 15 LA PAZ
 partidos = [
-    # --- CANDIDATOS ORURO (15) ---
+    # --- ORURO ---
     {"id": 1, "nombre": "MTS", "alcalde": "OLIVER OSCAR POMA CARTAGENA", "ciudad": "ORURO", "votos": 0},
     {"id": 2, "nombre": "PATRIA ORURO", "alcalde": "RAFAEL VARGAS VILLEGAS", "ciudad": "ORURO", "votos": 0},
     {"id": 3, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS", "ciudad": "ORURO", "votos": 0},
@@ -22,7 +22,7 @@ partidos = [
     {"id": 14, "nombre": "FPV", "alcalde": "CANDIDATO 14 OR", "ciudad": "ORURO", "votos": 0},
     {"id": 15, "nombre": "BST", "alcalde": "CANDIDATO 15 OR", "ciudad": "ORURO", "votos": 0},
 
-    # --- CANDIDATOS LA PAZ (15) ---
+    # --- LA PAZ ---
     {"id": 16, "nombre": "UN", "alcalde": "SAMUEL DORIA MEDINA", "ciudad": "LA PAZ", "votos": 0},
     {"id": 17, "nombre": "MAS-IPSP", "alcalde": "CESAR DOCKWEILER", "ciudad": "LA PAZ", "votos": 0},
     {"id": 18, "nombre": "PBCP", "alcalde": "IVAN ARIAS", "ciudad": "LA PAZ", "votos": 0},
@@ -50,7 +50,6 @@ def index():
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
-    # El filtro ahora detecta si es ORURO o LA PAZ y trae sus 15 candidatos
     p_ciudad = [p for p in partidos if p['ciudad'] == ciudad]
     return render_template('votar.html', ciudad=ciudad, partidos=p_ciudad)
 
@@ -58,8 +57,11 @@ def votar(ciudad):
 def confirmar_voto():
     ci = request.form.get('ci').strip()
     p_id = int(request.form.get('partido_id'))
+    
+    # VALIDACIÓN DE CI DUPLICADO
     if any(v['ci'] == ci for v in votos_registrados):
         return redirect(url_for('index', msg_type='error', ci=ci))
+    
     votos_registrados.append({'ci': ci, 'partido_id': p_id})
     for p in partidos:
         if p['id'] == p_id:
