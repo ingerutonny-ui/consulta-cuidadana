@@ -28,11 +28,11 @@ def init_db():
 
 init_db()
 
-# LISTA OFICIAL DE 15 PARTIDOS SEGÚN PAPELETA
-def obtener_partidos_base(ciudad):
+def obtener_partidos(ciudad):
     es_lp = "LA PAZ" in ciudad.upper()
     offset = 100 if es_lp else 0
     
+    # Mapeo estricto de los 15 partidos de la papeleta
     return [
         {"id": 1 + offset, "nombre": "FRI", "alcalde": "CANDIDATO FRI"},
         {"id": 2 + offset, "nombre": "LODEL", "alcalde": "CANDIDATO LODEL"},
@@ -57,17 +57,18 @@ def index():
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
-    ciudad_clean = ciudad.upper().replace("_", " ")
-    return render_template('votar.html', ciudad=ciudad_clean, partidos=obtener_partidos_base(ciudad_clean))
+    c_nom = ciudad.upper().replace("_", " ")
+    return render_template('votar.html', ciudad=c_nom, partidos=obtener_partidos(c_nom))
 
 @app.route('/confirmar_voto', methods=['POST'])
 def confirmar_voto():
     try:
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute('INSERT INTO votos (ci, nombres, apellido, edad, genero, celular, partido_id) VALUES (%s, %s, %s, %s, %s, %s, %s)', 
-                   (request.form['ci'], request.form['nombres'].upper(), request.form['apellido'].upper(), 
-                    request.form['edad'], request.form['genero'], request.form['celular'], request.form['partido_id']))
+        cur.execute('''INSERT INTO votos (ci, nombres, apellido, edad, genero, celular, partido_id) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)''', 
+                    (request.form['ci'], request.form['nombres'].upper(), request.form['apellido'].upper(), 
+                     request.form['edad'], request.form['genero'], request.form['celular'], request.form['partido_id']))
         conn.commit()
         cur.close()
         conn.close()
@@ -85,10 +86,11 @@ def reporte():
     conn.close()
 
     res = {}
-    for c in ["ORURO", "LA PAZ"]:
-        lista = obtener_partidos_base(c)
-        for p in lista: p['votos'] = conteos.get(p['id'], 0)
-        res[c] = lista
+    for ciudad in ["ORURO", "LA PAZ"]:
+        lista = obtener_partidos(ciudad)
+        for p in lista:
+            p['votos'] = conteos.get(p['id'], 0)
+        res[ciudad] = lista
     return render_template('reporte.html', resultados=res)
 
 if __name__ == '__main__':
