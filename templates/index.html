@@ -17,21 +17,21 @@
         /* Contenedor de logos principales lado a lado */
         .splash-header { 
             display: flex; 
-            gap: 20px; 
+            gap: 40px; 
             align-items: center; 
             justify-content: center; 
             width: 90%; 
-            max-width: 600px;
-            margin-bottom: 40px;
+            max-width: 800px;
+            margin-bottom: 30px;
         }
-        .splash-header img { width: 45%; height: auto; object-fit: contain; }
+        .splash-header img { width: 40%; height: auto; object-fit: contain; }
 
-        .loader-container { width: 70%; max-width: 300px; height: 12px; background: #eee; border-radius: 20px; overflow: hidden; }
+        .loader-container { width: 70%; max-width: 400px; height: 14px; background: #eee; border-radius: 20px; overflow: hidden; }
         .loader-bar { width: 0%; height: 100%; background: #000; transition: width 0.1s linear; }
-        .loader-text { margin-top: 15px; font-weight: 900; color: #000; font-size: 2rem; }
+        .loader-text { margin-top: 15px; font-weight: 900; color: #000; font-size: 2.5rem; }
 
-        .wrapper { display:flex; align-items:center; justify-content:center; min-height:100vh; padding: 20px; box-sizing: border-box; transition: 0.6s; opacity: 0; }
-        .show-content { opacity: 1; }
+        .wrapper { display:flex; align-items:center; justify-content:center; min-height:100vh; padding: 20px; box-sizing: border-box; transition: 0.6s; opacity: 0; pointer-events: none; }
+        .show-content { opacity: 1; pointer-events: auto; }
         .blur-active { filter: blur(15px); pointer-events: none; }
 
         .hero-card { background:white; padding:40px 20px; border-radius:40px; box-shadow:0 15px 50px rgba(0,0,0,0.05); text-align:center; width:100%; max-width:850px; border: 1px solid #eee; box-sizing: border-box; }
@@ -55,8 +55,10 @@
         .btn-volver { display: inline-block; padding: 15px 40px; background: #000; color: white; text-decoration: none; border-radius: 20px; font-weight: 900; text-transform: uppercase; }
 
         @media (max-width: 600px) {
-            .splash-header { gap: 10px; }
-            .loader-text { font-size: 1.5rem; }
+            .splash-header { gap: 15px; }
+            .splash-header img { width: 45%; }
+            .loader-text { font-size: 1.8rem; }
+            h1 { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -97,20 +99,32 @@
     {% endif %}
 
     <script>
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += Math.floor(Math.random() * 12) + 5;
-            if (progress >= 100) {
-                progress = 100; clearInterval(interval);
-                setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                    document.getElementById('page-wrapper').classList.add('show-content');
-                    if(document.getElementById('msg-overlay')) document.getElementById('page-wrapper').classList.add('blur-active');
-                }, 500);
-            }
-            document.getElementById('bar').style.width = progress + '%';
-            document.getElementById('percent').innerText = progress + '%';
-        }, 80);
+        window.addEventListener('load', () => {
+            let progress = 0;
+            const bar = document.getElementById('bar');
+            const percent = document.getElementById('percent');
+            const splash = document.getElementById('splash');
+            const wrapper = document.getElementById('page-wrapper');
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 8) + 4;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        splash.style.transition = 'opacity 0.5s';
+                        splash.style.opacity = '0';
+                        setTimeout(() => {
+                            splash.style.display = 'none';
+                            wrapper.classList.add('show-content');
+                            if(document.getElementById('msg-overlay')) wrapper.classList.add('blur-active');
+                        }, 500);
+                    }, 400);
+                }
+                bar.style.width = progress + '%';
+                percent.innerText = progress + '%';
+            }, 60);
+        });
     </script>
 </body>
 </html>
