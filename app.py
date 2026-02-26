@@ -8,29 +8,50 @@ def get_db_connection():
     return psycopg2.connect(os.environ.get('DATABASE_URL'))
 
 def obtener_partidos(ciudad):
-    es_lp = "LA PAZ" in ciudad.upper()
-    offset = 100 if es_lp else 0
-    return [
-        {"id": 1 + offset, "nombre": "FRI", "alcalde": "CANDIDATO FRI"},
-        {"id": 2 + offset, "nombre": "LODEL", "alcalde": "CANDIDATO LODEL"},
-        {"id": 3 + offset, "nombre": "NGP", "alcalde": "CANDIDATO NGP"},
-        {"id": 4 + offset, "nombre": "AORA", "alcalde": "CANDIDATO AORA"},
-        {"id": 5 + offset, "nombre": "UN", "alcalde": "WALDO ALBARRACIN" if es_lp else "SAMUEL DORIA MEDINA"},
-        {"id": 6 + offset, "nombre": "ALIANZA", "alcalde": "CANDIDATO ALIANZA"},
-        {"id": 7 + offset, "nombre": "AESA", "alcalde": "CANDIDATO AESA"},
-        {"id": 8 + offset, "nombre": "SÚMATE", "alcalde": "CANDIDATO SÚMATE"},
-        {"id": 9 + offset, "nombre": "MTS", "alcalde": "RONALD ESCOBAR" if es_lp else "OLIVER OSCAR POMA CARTAGENA"},
-        {"id": 10 + offset, "nombre": "JALLALLA", "alcalde": "DAVID CASTRO"},
-        {"id": 11 + offset, "nombre": "LIBRE", "alcalde": "FRANKLIN FLORES" if es_lp else "RENE BENJAMIN GUZMAN VARGAS"},
-        {"id": 12 + offset, "nombre": "PP", "alcalde": "AMILCAR BARRAL" if es_lp else "CARLOS AGUILAR"},
-        {"id": 13 + offset, "nombre": "SOMOS PUEBLO", "alcalde": "IVAN ARIAS" if es_lp else "MARCELO CORTEZ GUTIERREZ"},
-        {"id": 14 + offset, "nombre": "JA-HA", "alcalde": "MARCELO FERNANDO MEDINA CENTELLAS"},
-        {"id": 15 + offset, "nombre": "PDC", "alcalde": "ANA MARÍA FLORES"}
-    ]
+    ciudad_upper = ciudad.upper()
+    if "LA PAZ" in ciudad_upper:
+        # LISTA OFICIAL LA PAZ - 17 CANDIDATOS
+        return [
+            {"id": 101, "nombre": "JALLALLA", "alcalde": "JHONNY PLATA"},
+            {"id": 102, "nombre": "ASP", "alcalde": "XAVIER ITURRALDE"},
+            {"id": 103, "nombre": "VENCEREMOS", "alcalde": "WALDO ALBARRACÍN"},
+            {"id": 104, "nombre": "SOMOS LA PAZ", "alcalde": "MIGUEL ROCA"},
+            {"id": 105, "nombre": "UPC", "alcalde": "LUIS EDUARDO 'CHICHI' SILES"},
+            {"id": 106, "nombre": "LIBRE", "alcalde": "CARLOS 'CAE' PALENQUE"},
+            {"id": 107, "nombre": "A-UPP", "alcalde": "ISAAC FERNÁNDEZ"},
+            {"id": 108, "nombre": "INNOVACIÓN HUMANA", "alcalde": "CÉSAR DOCKWEILER"},
+            {"id": 109, "nombre": "VIDA", "alcalde": "FERNANDO VALENCIA"},
+            {"id": 110, "nombre": "FRI", "alcalde": "RAÚL DAZA"},
+            {"id": 111, "nombre": "PDC", "alcalde": "MARIO SILVA"},
+            {"id": 112, "nombre": "MTS", "alcalde": "JORGE DULON"},
+            {"id": 113, "nombre": "NGP", "alcalde": "HERNÁN RODRIGO RIVERA"},
+            {"id": 114, "nombre": "MPS", "alcalde": "RICARDO CUEVAS"},
+            {"id": 115, "nombre": "APB-SÚMATE", "alcalde": "ÓSCAR SOGLIANO"},
+            {"id": 116, "nombre": "ALIANZA PATRIA", "alcalde": "CARLOS NEMO RIVERA"},
+            {"id": 117, "nombre": "SUMA POR EL BIEN COMÚN", "alcalde": "IVÁN ARIAS"}
+        ]
+    else:
+        # LISTA OFICIAL ORURO - 14 CANDIDATOS (N°8 ELIMINADO)
+        return [
+            {"id": 1, "nombre": "FRI", "alcalde": "RENE ROBERTO MAMANI LLAVE"},
+            {"id": 2, "nombre": "LEAL", "alcalde": "ADEMAR WILLCARANI MORALES"},
+            {"id": 3, "nombre": "NGP", "alcalde": "IVAN QUISPE GUTIERREZ"},
+            {"id": 4, "nombre": "AORA", "alcalde": "SANTIAGO CONDORI APAZA"},
+            {"id": 5, "nombre": "UN", "alcalde": "ENRIQUE FERNANDO"},
+            {"id": 6, "nombre": "AUPP", "alcalde": "JUAN CARLOS CHOQUE ZUBIETA"},
+            {"id": 7, "nombre": "UCS", "alcalde": "LINO MARCOS MAIN"},
+            {"id": 9, "nombre": "SÚMATE", "alcalde": "OSCAR MIGUEL TOCO CHOQUE"},
+            {"id": 10, "nombre": "MTS", "alcalde": "OLIVER OSCAR POMA CARTAGENA"},
+            {"id": 11, "nombre": "ALIANZA PATRIA ORURO", "alcalde": "RAFAEL VARGAS VILLEGAS"},
+            {"id": 12, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS"},
+            {"id": 13, "nombre": "PP", "alcalde": "CARLOS AGUILAR"},
+            {"id": 14, "nombre": "SOMOS ORURO", "alcalde": "MARCELO CORTEZ GUTIERREZ"},
+            {"id": 15, "nombre": "JA-HA", "alcalde": "MARCELO FERNANDO MEDINA"}
+        ]
 
 @app.route('/')
 def index():
-    return render_template('index.html', msg_type=request.args.get('msg_type'), ci=request.args.get('ci'))
+    return render_template('index.html', msg_type=request.args.get('msg_type'), ci_votante=request.args.get('ci'))
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
