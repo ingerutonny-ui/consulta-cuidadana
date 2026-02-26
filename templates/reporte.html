@@ -52,7 +52,21 @@
                     backgroundColor: '#0d6efd'
                 }]
             },
-            options: { indexAxis: 'y', responsive: true }
+            options: { 
+                indexAxis: 'y', 
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1, // Esto elimina los decimales (0.2, 0.4, etc.)
+                            callback: function(value) {
+                                if (value % 1 === 0) { return value; }
+                            }
+                        }
+                    }
+                }
+            }
         });
         {% endfor %}
 
@@ -60,7 +74,7 @@
             const element = document.getElementById('bloque-reporte');
             html2pdf().set({
                 margin: 0,
-                filename: 'reporte.pdf',
+                filename: 'reporte_oficial.pdf',
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             }).from(element).save();
