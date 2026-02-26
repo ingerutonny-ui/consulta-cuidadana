@@ -29,7 +29,7 @@ def enviar_whatsapp(numero, ci):
 def obtener_partidos(ciudad):
     ciudad_upper = ciudad.upper()
     if "LA PAZ" in ciudad_upper:
-        # LISTA CORREGIDA SEGÚN TABLA OFICIAL (image_515168.png)
+        # LISTA LA PAZ SEGÚN TABLA OFICIAL (image_515168.png)
         return [
             {"id": 101, "nombre": "JALLALLA", "alcalde": "JHONNY PLATA"},
             {"id": 102, "nombre": "ASP", "alcalde": "XAVIER ITURRALDE"},
@@ -50,7 +50,7 @@ def obtener_partidos(ciudad):
             {"id": 117, "nombre": "SUMA POR EL BIEN COMÚN", "alcalde": "IVÁN ARIAS"}
         ]
     else:
-        # LISTA ORURO (MANTENIENDO INTEGRIDAD)
+        # LISTA ORURO SEGÚN TABLA OFICIAL (image_514dfc.png)
         return [
             {"id": 1, "nombre": "FRI", "alcalde": "RENE ROBERTO MAMANI LLAVE"},
             {"id": 2, "nombre": "LEAL", "alcalde": "ADEMAR WILLCARANI MORALES"},
@@ -59,13 +59,13 @@ def obtener_partidos(ciudad):
             {"id": 5, "nombre": "UN", "alcalde": "ENRIQUE FERNANDO"},
             {"id": 6, "nombre": "AUPP", "alcalde": "JUAN CARLOS CHOQUE ZUBIETA"},
             {"id": 7, "nombre": "UCS", "alcalde": "LINO MARCOS MAIN"},
-            {"id": 9, "nombre": "SÚMATE", "alcalde": "OSCAR MIGUEL TOCO CHOQUE"},
-            {"id": 10, "nombre": "MTS", "alcalde": "OLIVER OSCAR POMA CARTAGENA"},
-            {"id": 11, "nombre": "ALIANZA PATRIA ORURO", "alcalde": "RAFAEL VARGAS VILLEGAS"},
-            {"id": 12, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS"},
-            {"id": 13, "nombre": "PP", "alcalde": "CARLOS AGUILAR"},
-            {"id": 14, "nombre": "SOMOS ORURO", "alcalde": "MARCELO CORTEZ GUTIERREZ"},
-            {"id": 15, "nombre": "JA-HA", "alcalde": "MARCELO FERNANDO MEDINA"}
+            {"id": 8, "nombre": "SÚMATE", "alcalde": "OSCAR MIGUEL TOCO CHOQUE"},
+            {"id": 9, "nombre": "MTS", "alcalde": "OLIVER OSCAR POMA CARTAGENA"},
+            {"id": 10, "nombre": "ALIANZA PATRIA ORURO", "alcalde": "RAFAEL VARGAS VILLEGAS"},
+            {"id": 11, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS"},
+            {"id": 12, "nombre": "PP", "alcalde": "CARLOS AGUILAR"},
+            {"id": 13, "nombre": "SOMOS ORURO", "alcalde": "MARCELO CORTEZ GUTIERREZ"},
+            {"id": 14, "nombre": "JACHA", "alcalde": "MARCELO FERNANDO MEDINA"}
         ]
 
 @app.route('/')
