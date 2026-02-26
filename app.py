@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'consulta_ciudadana_nancy_2026'
 
+# Configuración para Render / PostgreSQL
 uri = os.environ.get('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
@@ -14,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# MODELOS
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -32,8 +34,9 @@ class Voto(db.Model):
 
 def restaurar_datos():
     db.create_all()
+    # Mapeo completo: 15 de Oruro y 17 de La Paz
     data = [
-        # ORURO (15 CANDIDATOS - SEGÚN PDF)
+        # ORURO (Basado en PDF) [cite: 24, 25, 27, 30, 32, 33, 34, 35, 36, 37, 41, 42, 43, 46]
         {'n': 'FRI', 'a': 'RENE ROBERTO MAMANI LLAVE', 'c': 'ORURO'},
         {'n': 'LEAL', 'a': 'ADEMAR WILLCARANI MORALES', 'c': 'ORURO'},
         {'n': 'NGP', 'a': 'IVÁN QUISPE GUTIÉRREZ', 'c': 'ORURO'},
@@ -50,15 +53,15 @@ def restaurar_datos():
         {'n': 'JACHA', 'a': 'MARCELO FERNANDO MEDINA CENTELLAS', 'c': 'ORURO'},
         {'n': 'SOL.BO', 'a': 'MARCELO MEDINA', 'c': 'ORURO'},
 
-        # LA PAZ (LISTA COMPLETA)
-        {'n': 'JALLALLA', 'a': 'SANTOS QUISPE (REMPLAZO)', 'c': 'LA PAZ'},
+        # LA PAZ (17 Candidatos)
+        {'n': 'JALLALLA', 'a': 'SANTOS QUISPE', 'c': 'LA PAZ'},
         {'n': 'ASP', 'a': 'XAVIER ITURRALDE', 'c': 'LA PAZ'},
-        {'n': 'VENCEREMOS', 'a': 'AMILCAR BARRAL', 'c': 'LA PAZ'},
+        {'n': 'VENCEREMOS', 'a': 'WALDO ALBARRACIN', 'c': 'LA PAZ'},
         {'n': 'SOMOS LA PAZ', 'a': 'MIGUEL ROCA', 'c': 'LA PAZ'},
         {'n': 'UPC', 'a': 'LUIS EDUARDO SILES', 'c': 'LA PAZ'},
         {'n': 'LIBRE', 'a': 'CARLOS CORDERO', 'c': 'LA PAZ'},
         {'n': 'MTS', 'a': 'FELIX PATZI', 'c': 'LA PAZ'},
-        {'n': 'PAN-BOL', 'a': 'ABDULIA JALIRI', 'c': 'LA PAZ'},
+        {'n': 'PAN-BOL', 'a': 'AMILCAR BARRAL', 'c': 'LA PAZ'},
         {'n': 'SOL.BO', 'a': 'ALVARO BLONDEL', 'c': 'LA PAZ'},
         {'n': 'UNIDOS', 'a': 'PEDRO SUSZ', 'c': 'LA PAZ'},
         {'n': 'UCS', 'a': 'PETER MALDONADO', 'c': 'LA PAZ'},
@@ -109,6 +112,7 @@ def confirmar_voto():
 
 @app.route('/reporte')
 def reporte():
+    # Esta es la ruta correcta, no uses reporte.html en la URL
     resultados = db.session.query(
         Partido.nombre, 
         Partido.ciudad, 
