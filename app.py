@@ -1,11 +1,16 @@
+import os
+import psycopg2
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-# BASE DE DATOS LOCAL
-votos = [] 
+# CONEXIÓN A POSTGRESQL EN LA NUBE (RENDER)
+def get_db_connection():
+    # Render proporciona la DATABASE_URL automáticamente
+    conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
+    return conn
 
-# LISTA REAL DE CANDIDATOS SEGÚN PAPELETAS DE CONSULTA
+# LISTA REAL DE CANDIDATOS (IGUAL QUE EL ANTERIOR)
 partidos_oruro = [
     {"id": 1, "nombre": "MTS", "alcalde": "OLIVER OSCAR POMA CARTAGENA"},
     {"id": 2, "nombre": "PATRIA ORURO", "alcalde": "RAFAEL VARGAS VILLEGAS"},
@@ -61,23 +66,33 @@ def votar(ciudad):
 @app.route('/confirmar_voto', methods=['POST'])
 def confirmar_voto():
     ci = request.form.get('ci')
+    conn = get_db_connection()
+    cur = conn.cursor()
     
-    # Verificación de duplicados
-    for v in votos:
-        if v['ci'] == ci:
-            return redirect(url_for('index', msg_type='error', ci=ci))
+    # VERIFICACIÓN EN LA BASE DE DATOS REAL
+    cur.execute('SELECT ci FROM votos WHERE ci = %s', (ci,))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        return redirect(url_for('index', msg_type='error', ci=ci))
     
-    # Registro completo
-    nuevo_voto = {
-        "ci": ci,
-        "nombres": request.form.get('nombres').upper(),
-        "apellido": request.form.get('apellido').upper(),
-        "edad": request.form.get('edad'),
-        "genero": request.form.get('genero'),
-        "celular": request.form.get('celular'),
-        "partido_id": request.form.get('partido_id')
-    }
-    votos.append(nuevo_voto)
+    # INSERCIÓN PERMANENTE (P1, P2, P3 mapeados)
+    cur.execute('''
+        INSERT INTO votos (ci, nombres, apellido, edad, genero, celular, partido_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    ''', (
+        ci, 
+        request.form.get('nombres').upper(),
+        request.form.get('apellido').upper(),
+        request.form.get('edad'),
+        request.form.get('genero'),
+        request.form.get('celular'),
+        request.form.get('partido_id')
+    ))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
     
     return redirect(url_for('index', msg_type='success', ci=ci))
 
