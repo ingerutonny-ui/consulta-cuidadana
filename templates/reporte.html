@@ -2,72 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REPORTE DE TENDENCIAS</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>MONITOREO DE TENDENCIAS</title>
     <style>
-        body { background: #fff; color: #1a1a1a; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 40px; }
-        h1 { margin: 0; text-transform: uppercase; letter-spacing: 2px; }
-        .section { margin-bottom: 60px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #fff; margin: 0; padding: 40px; color: #000; }
+        .header-reporte { text-align: center; border-bottom: 5px solid #000; padding-bottom: 20px; margin-bottom: 50px; }
+        h1 { text-transform: uppercase; font-weight: 900; margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
+        .sub { color: #000; font-weight: 900; letter-spacing: 1px; margin-top: 10px; text-transform: uppercase; }
+
+        .ciudad-section { margin-bottom: 80px; }
+        .ciudad-title { font-size: 2rem; font-weight: 900; border-left: 15px solid #000; padding-left: 20px; margin-bottom: 30px; text-transform: uppercase; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #f4f4f4; padding: 12px; border: 1px solid #ddd; text-align: left; }
-        td { padding: 10px; border: 1px solid #ddd; }
-        tr:nth-child(even) { background: #fafafa; }
-        .page-break { page-break-before: always; }
-        .btn-pdf { position: fixed; bottom: 20px; right: 20px; background: #000; color: #fff; padding: 15px 30px; border-radius: 50px; border: none; cursor: pointer; font-weight: bold; }
+        th { background: #000; color: #fff; padding: 20px; text-align: left; text-transform: uppercase; }
+        td { padding: 20px; border-bottom: 1px solid #eee; font-size: 1.1rem; }
+        .votos-count { font-weight: 900; font-size: 1.4rem; text-align: right; }
+
+        .btn-pdf { display: block; width: 300px; margin: 50px auto; padding: 20px; background: #000; color: #fff; text-align: center; text-decoration: none; font-weight: 900; border-radius: 20px; text-transform: uppercase; }
+        @media print { .btn-pdf { display: none; } }
     </style>
 </head>
 <body>
-<div id="reporte-pdf" class="container">
-    <div class="header">
-        <h1>PROYECTO EN LA NUBE</h1>
-        <p>REPORTE OFICIAL DE TENDENCIAS ELECTORALES</p>
+
+    <div class="header-reporte">
+        <h1>MONITOREO DE TENDENCIAS</h1>
+        <div class="sub">REPORTE OFICIAL DE CONSULTA CIUDADANA</div>
     </div>
 
-    <div class="section">
-        <h2>CIUDAD: ORURO</h2>
-        <canvas id="chartOruro" width="400" height="150"></canvas>
+    {% for ciudad, partidos in resultados.items() %}
+    <div class="ciudad-section">
+        <div class="ciudad-title">{{ ciudad }}</div>
         <table>
-            <thead><tr><th>SIGLA</th><th>CANDIDATO</th><th>VOTOS</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>PARTIDO POLÍTICO</th>
+                    <th>CANDIDATO</th>
+                    <th style="text-align: right;">VOTOS REGISTRADOS</th>
+                </tr>
+            </thead>
             <tbody>
-                {% for r in res_oruro %}
-                <tr><td><strong>{{ r.nombre }}</strong></td><td>{{ r.alcalde }}</td><td>{{ r.total }}</td></tr>
+                {% for p in partidos %}
+                <tr>
+                    <td style="font-weight: 900;">{{ p.nombre }}</td>
+                    <td>{{ p.alcalde }}</td>
+                    <td class="votos-count">{{ p.votos }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% endfor %}
 
-    <div class="page-break"></div>
+    <a href="javascript:window.print()" class="btn-pdf">DESCARGAR REPORTE PDF</a>
 
-    <div class="section">
-        <h2>CIUDAD: LA PAZ</h2>
-        <canvas id="chartLaPaz" width="400" height="150"></canvas>
-        <table>
-            <thead><tr><th>SIGLA</th><th>CANDIDATO</th><th>VOTOS</th></tr></thead>
-            <tbody>
-                {% for r in res_lapaz %}
-                <tr><td><strong>{{ r.nombre }}</strong></td><td>{{ r.alcalde }}</td><td>{{ r.total }}</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-<button class="btn-pdf" onclick="descargar()">DESCARGAR REPORTE PDF</button>
-<script>
-    function crearG(id, labels, data) {
-        new Chart(document.getElementById(id), {
-            type: 'bar',
-            data: { labels: labels, datasets: [{ label: 'Votos', data: data, backgroundColor: '#333' }] }
-        });
-    }
-    crearG('chartOruro', [{% for r in res_oruro %}"{{ r.nombre }}",{% endfor %}], [{% for r in res_oruro %}{{ r.total }},{% endfor %}]);
-    crearG('chartLaPaz', [{% for r in res_lapaz %}"{{ r.nombre }}",{% endfor %}], [{% for r in res_lapaz %}{{ r.total }},{% endfor %}]);
-    function descargar() {
-        const element = document.getElementById('reporte-pdf');
-        html2pdf().set({ margin: 0.5, filename: 'Reporte_Final.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }).from(element).save();
-    }
-</script>
 </body>
 </html>
