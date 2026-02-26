@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONSULTA CIUDADANA MUNICIPAL</title>
     <style>
-        :root { --accent: #d90429; --nancy-dark: #1a1a1a; }
-        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Segoe UI', sans-serif; background:#f4f7f6; overflow-x: hidden; }
+        :root { --accent: #444; --nancy-dark: #1a1a1a; --soft-grey: #f8f9fa; }
+        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Segoe UI', sans-serif; background:#ffffff; overflow-x: hidden; }
 
         /* SPLASH SCREEN */
         #splash {
@@ -15,63 +15,38 @@
             align-items: center; justify-content: center; z-index: 10000;
         }
         .splash-logo { width: 80%; max-width: 400px; height: auto; margin-bottom: 40px; animation: pulse 2s infinite ease-in-out; }
-        .loader-container { width: 250px; height: 6px; background: #f0f0f0; border-radius: 20px; overflow: hidden; }
-        .loader-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s linear; }
+        .loader-container { width: 250px; height: 6px; background: #eee; border-radius: 20px; overflow: hidden; }
+        .loader-bar { width: 0%; height: 100%; background: #333; transition: width 0.1s linear; }
         .loader-text { margin-top: 15px; font-weight: 900; color: #333; font-size: 1.2rem; }
 
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
-        /* CONTENIDO RESPONSIVO */
+        /* CONTENIDO */
         .wrapper { display:flex; align-items:center; justify-content:center; min-height:100vh; padding: 20px; box-sizing: border-box; transition: 0.6s; opacity: 0; }
         .show-content { opacity: 1; }
         .blur-active { filter: blur(15px); pointer-events: none; }
 
-        .hero-card { background:white; padding:40px 20px; border-radius:40px; box-shadow:0 30px 60px rgba(0,0,0,0.05); text-align:center; width:100%; max-width:800px; }
+        .hero-card { background:white; padding:40px 20px; border-radius:40px; box-shadow:0 15px 45px rgba(0,0,0,0.05); text-align:center; width:100%; max-width:800px; border: 1px solid #eee; }
         h1 { font-size: 2rem; letter-spacing:2px; margin:0; color:var(--nancy-dark); font-weight:900; text-transform: uppercase; }
-        .line { width:80px; height:6px; background:var(--accent); margin:20px auto 40px; border-radius:10px; }
+        .line { width:80px; height:4px; background:#ddd; margin:20px auto 40px; border-radius:10px; }
 
+        /* BOTONES CIUDAD - SIN AMARILLO */
         .btn-container { display:flex; gap:20px; justify-content:center; flex-wrap: wrap; }
-        .btn-city { flex: 1; min-width: 250px; background:#fdffdf; border:2px solid #eee; padding:30px 20px; border-radius:35px; text-decoration:none; transition:0.3s; display:flex; flex-direction:column; align-items:center; }
-        .btn-city:hover { transform:translateY(-10px); border-color:var(--accent); background:white; }
+        .btn-city { flex: 1; min-width: 250px; background: #ffffff; border:1px solid #eee; padding:30px 20px; border-radius:35px; text-decoration:none; transition:0.3s; display:flex; flex-direction:column; align-items:center; }
+        .btn-city:hover { transform:translateY(-5px); background: var(--soft-grey); box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-color: #ccc; }
         .btn-city img { width:100%; height:160px; object-fit:contain; margin-bottom:20px; }
         .btn-city span { font-weight:900; color:var(--nancy-dark); font-size:1.6rem; letter-spacing:1px; }
 
-        /* SECCIÓN MONITOREO CREATIVO */
-        .monitoreo-box { 
-            margin-top: 40px; 
-            padding: 30px; 
-            background: #1a1a1a; 
-            border: 2px dashed var(--accent); 
-            border-radius: 30px; 
-            text-align: center; 
-            transition: 0.3s;
-        }
-        .monitoreo-box:hover { background: #222; transform: scale(1.02); }
-        .monitoreo-box h3 { color: white; margin: 0; font-size: 1.2rem; letter-spacing: 2px; }
-        .monitoreo-box p { color: #888; font-size: 0.9rem; margin: 10px 0 20px; }
-        .btn-monitoreo { 
-            display: inline-block; 
-            padding: 15px 40px; 
-            background: var(--accent); 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 50px; 
-            font-weight: 900; 
-            box-shadow: 0 10px 20px rgba(217, 4, 41, 0.3);
-            text-transform: uppercase;
-        }
+        /* MONITOREO - DISEÑO GRIS SUTIL */
+        .monitoreo-box { margin-top: 40px; padding: 30px; background: #ffffff; border: 2px solid #eee; border-radius: 30px; text-align: center; }
+        .btn-monitoreo { display: inline-block; padding: 15px 40px; background: #333; color: white; text-decoration: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .btn-monitoreo:hover { background: #000; transform: scale(1.02); }
 
-        /* OVERLAY MENSAJES */
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); display: none; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
-        .msg-content { background: white; padding: 40px; border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 500px; }
-        .ci-box { background: #f8f9fa; padding: 20px; border-radius: 20px; font-weight: bold; font-size: 2rem; color: var(--accent); margin: 20px 0; border: 2px dashed #ddd; }
-        .btn-volver { display: inline-block; padding: 15px 50px; background: var(--nancy-dark); color: white; text-decoration: none; border-radius: 20px; font-weight: 900; }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 1.6rem; }
-            .btn-city { padding: 30px 15px; }
-            .btn-city img { height: 130px; }
-        }
+        /* OVERLAY */
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); display: none; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
+        .msg-content { background: white; padding: 40px; border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 500px; border: 1px solid #eee; }
+        .ci-box { background: var(--soft-grey); padding: 20px; border-radius: 20px; font-weight: bold; font-size: 2rem; color: #333; margin: 20px 0; border: 2px dashed #ddd; }
+        .btn-volver { display: inline-block; padding: 15px 50px; background: #333; color: white; text-decoration: none; border-radius: 20px; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -83,18 +58,15 @@
 
     <div class="wrapper" id="page-wrapper">
         <div class="hero-card">
-            <h1>CONSULTA CIUDADANA<br><span style="color:#777; font-size: 1.3rem;">MUNICIPAL</span></h1>
+            <h1>CONSULTA CIUDADANA<br><span style="color:#999; font-size: 1.1rem; font-weight: 400;">SISTEMA DE GESTIÓN MUNICIPAL</span></h1>
             <div class="line"></div>
-            
             <div class="btn-container">
                 <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png"><span>ORURO</span></a>
                 <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png"><span>LA PAZ</span></a>
             </div>
-
             <div class="monitoreo-box">
-                <h3>TABLERO DE CONTROL</h3>
-                <p>Visualización de datos en tiempo real y estadísticas oficiales.</p>
-                <a href="/reporte" class="btn-monitoreo">----- MONITOREO DE TENDENCIAS -----</a>
+                <h3 style="color:#333; margin:0 0 10px; font-size: 1rem; letter-spacing: 1px;">ESTADÍSTICAS Y TENDENCIAS</h3>
+                <a href="/reporte" class="btn-monitoreo">MONITOREO DE TENDENCIAS</a>
             </div>
         </div>
     </div>
@@ -102,12 +74,9 @@
     {% if msg_type %}
     <div class="overlay" id="msg-overlay" style="display: flex;">
         <div class="msg-content">
-            <h2 style="font-weight: 900; color: {{ '#2b9348' if msg_type == 'success' else '#d90429' }};">
-                {{ '¡VOTO REGISTRADO!' if msg_type == 'success' else 'ERROR: YA VOTÓ' }}
-            </h2>
-            <p>DOCUMENTO DE IDENTIDAD:</p>
+            <h2 style="font-weight: 900; color: #333;">{{ 'VOTO REGISTRADO' if msg_type == 'success' else 'CI REGISTRADO ANTERIORMENTE' }}</h2>
             <div class="ci-box">{{ ci_votante }}</div>
-            <a href="/" class="btn-volver">ENTENDIDO</a>
+            <a href="/" class="btn-volver">CONTINUAR</a>
         </div>
     </div>
     {% endif %}
@@ -115,10 +84,18 @@
     <script>
         let progress = 0;
         const interval = setInterval(() => {
-            progress += Math.floor(Math.random() * 10) + 2;
+            progress += Math.floor(Math.random() * 10) + 5;
             if (progress >= 100) {
                 progress = 100; clearInterval(interval);
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
                     document.getElementById('page-wrapper').classList.add('show-content');
-                    if(
+                    if(document.getElementById('msg-overlay')) document.getElementById('page-wrapper').classList.add('blur-active');
+                }, 400);
+            }
+            document.getElementById('bar').style.width = progress + '%';
+            document.getElementById('percent').innerText = progress + '%';
+        }, 40);
+    </script>
+</body>
+</html>
