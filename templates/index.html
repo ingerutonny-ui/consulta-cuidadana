@@ -30,33 +30,42 @@
         .blur-active { filter: blur(15px); pointer-events: none; }
 
         .hero-card { background:white; padding:60px 40px; border-radius:40px; box-shadow:0 20px 70px rgba(0,0,0,0.08); text-align:center; width:100%; max-width:1000px; border: 1px solid #eee; box-sizing: border-box; }
-        h1 { font-size: 2.5rem; letter-spacing:1px; margin:0; color:var(--nancy-dark); font-weight:900; text-transform: uppercase; line-height: 1.1; }
-        .line { width:120px; height:6px; background:#000; margin:25px auto 45px; border-radius:10px; }
+        h1 { font-size: 2.8rem; letter-spacing:1px; margin:0; color:var(--nancy-dark); font-weight: 900; text-transform: uppercase; line-height: 1; }
+        
+        /* AJUSTE: MUNICIPAL MÁS GRANDE */
+        .sub-municipal { color: #000; font-size: 1.5rem; font-weight: 900; letter-spacing: 8px; text-transform: uppercase; display: block; margin-top: 10px; }
+        
+        .line { width:150px; height:8px; background:#000; margin:25px auto 50px; border-radius:10px; }
 
         .btn-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; width: 100%; }
         .btn-city { background: #ffffff; border: 2px solid #f8f9fa; padding: 50px 20px; border-radius: 35px; text-decoration: none; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .btn-city:hover { transform: translateY(-15px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-color: #eee; }
+        .btn-city:hover { transform: translateY(-15px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: #eee; }
         
         .btn-city img { width: 100%; max-width: 220px; height: auto; margin-bottom: 25px; }
-        .btn-city span { font-weight: 900; color: #000; font-size: 2rem; }
+        
+        /* AJUSTE: TEXTO VOTAR EN... */
+        .btn-city span { font-weight: 900; color: #000; font-size: 1.8rem; text-transform: uppercase; }
 
-        .monitoreo-link-container { margin-top: 60px; border-top: 1px solid #eee; padding-top: 40px; width: 100%; }
+        .monitoreo-link-container { margin-top: 60px; border-top: 2px solid #f0f0f0; padding-top: 40px; width: 100%; }
+        
+        /* AJUSTE: BOTÓN RESULTADOS MÁS NOTORIO */
         .btn-resultados { 
-            display: inline-block; width: 100%; max-width: 600px; padding: 18px;
-            border: 2px solid #eee; border-radius: 60px; color: #999; text-decoration: none;
-            font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; transition: 0.3s;
+            display: inline-block; width: 100%; max-width: 600px; padding: 22px;
+            background: #000; color: #fff; border: none; border-radius: 60px; text-decoration: none;
+            font-size: 1.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 5px; 
+            transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .btn-resultados:hover { background: #000; color: #fff; border-color: #000; }
+        .btn-resultados:hover { transform: scale(1.05); background: #333; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
 
         @media (max-width: 600px) {
             .hero-card { padding: 40px 20px; }
-            h1 { font-size: 1.8rem; }
+            h1 { font-size: 2rem; }
+            .sub-municipal { font-size: 1rem; letter-spacing: 4px; }
             .btn-container { grid-template-columns: 1fr; gap: 20px; }
             .btn-city { padding: 30px 15px; }
             .btn-city img { max-width: 140px; }
-            .btn-city span { font-size: 1.5rem; }
-            .splash-header img { width: 45%; }
-            .loader-text { font-size: 2rem; }
+            .btn-city span { font-size: 1.3rem; }
+            .btn-resultados { font-size: 1rem; letter-spacing: 2px; }
         }
     </style>
 </head>
@@ -72,16 +81,16 @@
 
     <div class="wrapper" id="page-wrapper">
         <div class="hero-card">
-            <h1>CONSULTA CIUDADANA<br><span style="color:#bbb; font-size: 1.2rem; font-weight: 400; letter-spacing: 3px;">MUNICIPAL</span></h1>
+            <h1>CONSULTA CIUDADANA<br><span class="sub-municipal">MUNICIPAL</span></h1>
             <div class="line"></div>
             <div class="btn-container">
                 <a href="/votar/ORURO" class="btn-city">
                     <img src="/static/oruro.png">
-                    <span>ORURO</span>
+                    <span>VOTAR EN: ORURO</span>
                 </a>
                 <a href="/votar/LA PAZ" class="btn-city">
                     <img src="/static/lapaz.png">
-                    <span>LA PAZ</span>
+                    <span>VOTAR EN: LA PAZ</span>
                 </a>
             </div>
             <div class="monitoreo-link-container">
