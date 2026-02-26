@@ -9,87 +9,61 @@
         body { font-family: 'Segoe UI', sans-serif; background: #ffffff; color: var(--dark); margin: 0; padding: 20px; }
         .container { max-width: 1000px; margin: auto; }
         
-        header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        h1 { text-transform: uppercase; letter-spacing: 2px; font-weight: 900; margin: 0; font-size: 2rem; }
-        p { color: #888; margin: 5px 0 0; font-size: 0.9rem; }
+        header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px; }
+        h1 { text-transform: uppercase; letter-spacing: 2px; font-weight: 900; margin: 0; font-size: 2.2rem; }
+        p { color: #888; margin: 5px 0 0; font-weight: 600; }
 
-        /* GRID DE CANDIDATOS */
-        .grid-candidatos { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 20px; 
-            margin-top: 20px; 
-        }
+        .grid-candidatos { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
 
-        /* CAJA CANDIDATO COMO BOTÓN */
         .card-btn { 
-            background: #ffffff; 
-            border: 1px solid var(--border); 
-            padding: 30px 20px; 
-            border-radius: 25px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            outline: none;
+            background: #ffffff; border: 1px solid var(--border); padding: 35px 20px; 
+            border-radius: 30px; text-align: center; cursor: pointer; transition: 0.3s;
+            width: 100%; outline: none; display: flex; flex-direction: column; align-items: center;
         }
+        .card-btn:hover { transform: translateY(-5px); background: var(--soft-grey); box-shadow: 0 15px 40px rgba(0,0,0,0.05); border-color: #999; }
 
-        .card-btn:hover { 
-            transform: translateY(-5px); 
-            background: var(--soft-grey); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border-color: #ccc;
-        }
+        .sigla { font-size: 2rem; font-weight: 900; color: #000; margin-bottom: 10px; }
+        .nombre { font-size: 0.9rem; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .sigla { font-size: 1.8rem; font-weight: 900; color: #000; margin-bottom: 8px; }
-        .nombre { font-size: 0.85rem; color: #666; font-weight: 400; text-transform: uppercase; }
-
-        /* MODAL DE REGISTRO COMPLETO */
+        /* MODAL */
         .modal { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
-            display: none; align-items:center; justify-content:center; z-index: 10000; 
-            padding: 20px; overflow-y: auto;
+            background: rgba(255,255,255,0.96); backdrop-filter: blur(15px); 
+            display: none; align-items:center; justify-content:center; z-index: 10000; padding: 20px;
         }
         .modal-content { 
-            background: white; padding: 40px; border-radius: 35px; 
-            box-shadow: 0 30px 70px rgba(0,0,0,0.1); text-align: center; 
-            width: 100%; max-width: 450px; border: 1px solid var(--border);
-            position: relative;
+            background: white; padding: 40px; border-radius: 40px; 
+            box-shadow: 0 30px 80px rgba(0,0,0,0.15); text-align: center; 
+            width: 100%; max-width: 480px; border: 1px solid var(--border);
         }
-        .modal-content h3 { margin: 0 0 10px; font-weight: 900; text-transform: uppercase; color: #000; }
+        .modal-content h3 { margin: 0 0 5px; font-weight: 900; text-transform: uppercase; font-size: 1.5rem; }
         
-        /* FORMULARIO DENTRO DEL MODAL */
-        .form-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .form-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 25px; }
+        
+        /* INPUTS - CI EN MAYÚSCULAS Y RESALTADO */
         input, select { 
-            width: 100%; padding: 14px; border: 1px solid #ddd; 
-            border-radius: 12px; font-size: 1rem; box-sizing: border-box;
-            font-family: inherit; background: var(--soft-grey);
+            width: 100%; padding: 16px; border: 1px solid #ddd; border-radius: 15px; 
+            font-size: 1rem; box-sizing: border-box; background: var(--soft-grey); font-family: inherit;
         }
-        input:focus { border-color: #000; outline: none; background: #fff; }
+        .input-ci { 
+            background: #000 !important; color: #fff !important; font-size: 1.4rem !important; 
+            font-weight: 900 !important; text-align: center; text-transform: uppercase;
+        }
+        .input-ci::placeholder { color: #888; font-weight: 400; font-size: 1rem; }
 
         .btn-confirmar { 
-            width: 100%; padding: 16px; background: #000; color: white; 
-            border: none; border-radius: 15px; font-weight: 900; cursor: pointer;
-            text-transform: uppercase; font-size: 1rem; margin-top: 10px; transition: 0.3s;
+            width: 100%; padding: 20px; background: #000; color: white; border: none; 
+            border-radius: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 1.1rem;
         }
-        .btn-confirmar:hover { background: #333; }
-        .btn-cancelar { 
-            margin-top: 15px; display: inline-block; color: #999; 
-            text-decoration: none; font-size: 0.85rem; cursor: pointer; font-weight: 600;
-        }
+        .btn-cancelar { margin-top: 20px; display: inline-block; color: #aaa; text-decoration: none; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>{{ ciudad }}</h1>
-        <p>SELECCIONE UN CANDIDATO PARA INGRESAR SUS DATOS Y VOTAR</p>
+        <h1>CIUDAD: {{ ciudad }}</h1>
+        <p>SELECCIONE UN CANDIDATO PARA REGISTRAR SU VOTO</p>
     </header>
 
     <div class="grid-candidatos">
@@ -104,31 +78,32 @@
 
 <div class="modal" id="modalVoto">
     <div class="modal-content">
-        <h3>VOTAR POR: <span id="nombre-partido" style="text-decoration: underline;"></span></h3>
-        <p style="margin-bottom: 20px;">Complete sus datos oficiales para continuar.</p>
+        <p style="margin:0; color:#888; font-size:0.8rem;">CANDIDATO SELECCIONADO:</p>
+        <h3 id="nombre-partido"></h3>
         
         <form action="/confirmar_voto" method="POST" class="form-grid">
             <input type="hidden" name="partido_id" id="input-partido-id">
             
-            <input type="text" name="ci" placeholder="CÉDULA DE IDENTIDAD (ÚNICA)" required autocomplete="off">
-            <input type="text" name="nombres" placeholder="NOMBRES" required>
-            <input type="text" name="apellido" placeholder="APELLIDOS" required>
+            <input type="text" name="ci" class="input-ci" placeholder="INGRESE SU C.I. AQUÍ" required autocomplete="off">
+            
+            <input type="text" name="nombres" placeholder="NOMBRES COMPLETOS" required oninput="this.value = this.value.toUpperCase()">
+            <input type="text" name="apellido" placeholder="APELLIDOS COMPLETOS" required oninput="this.value = this.value.toUpperCase()">
             
             <div style="display: flex; gap: 10px;">
-                <input type="number" name="edad" placeholder="EDAD" required min="18" style="flex: 1;">
-                <select name="genero" required style="flex: 1;">
+                <input type="number" name="edad" placeholder="EDAD" required min="18">
+                <select name="genero" required>
                     <option value="">GÉNERO</option>
                     <option value="MASCULINO">MASCULINO</option>
                     <option value="FEMENINO">FEMENINO</option>
                 </select>
             </div>
             
-            <input type="text" name="celular" placeholder="TELÉFONO CELULAR" required>
+            <input type="text" name="celular" placeholder="NÚMERO DE CELULAR" required>
             
-            <button type="submit" class="btn-confirmar">REGISTRAR VOTO OFICIAL</button>
+            <button type="submit" class="btn-confirmar">CONFIRMAR VOTO OFICIAL</button>
         </form>
         
-        <div class="btn-cancelar" onclick="cerrarVoto()">← VOLVER ATRÁS</div>
+        <div class="btn-cancelar" onclick="cerrarVoto()">SALIR SIN VOTAR</div>
     </div>
 </div>
 
@@ -137,21 +112,12 @@
         document.getElementById('input-partido-id').value = id;
         document.getElementById('nombre-partido').innerText = nombre;
         document.getElementById('modalVoto').style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Bloquea scroll fondo
+        document.body.style.overflow = 'hidden';
     }
-
     function cerrarVoto() {
         document.getElementById('modalVoto').style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-
-    // Cerrar si hace clic fuera del contenido
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('modalVoto')) {
-            cerrarVoto();
-        }
-    }
 </script>
-
 </body>
 </html>
