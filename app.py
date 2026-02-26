@@ -125,6 +125,5 @@ def reporte():
         return "Error en reporte", 500
 
 if __name__ == '__main__':
-    # Configuración de puerto para Render
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
