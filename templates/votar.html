@@ -2,89 +2,104 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>VOTACIÓN {{ ciudad }}</title>
+    <title>SISTEMA DE VOTACIÓN {{ ciudad }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root { --soft: #f8f9fa; --border: #eeeeee; }
-        body { font-family: 'Segoe UI', sans-serif; background: #fff; margin: 0; padding: 20px; }
-        header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 30px; }
-        h1 { text-transform: uppercase; font-weight: 900; font-size: 2rem; }
+        :root { --dark: #1a1a1a; --soft-bg: #f4f7f6; --border: #e1e4e8; }
+        body { font-family: 'Segoe UI', sans-serif; background: #ffffff; margin: 0; padding: 20px; color: var(--dark); }
+        header { text-align: center; border-bottom: 2px solid var(--dark); padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { text-transform: uppercase; font-weight: 900; }
 
-        /* REJILLA FIJA 3 COLUMNAS X 5 FILAS */
+        /* REJILLA 3X5 */
         .grid-candidatos { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            grid-template-rows: repeat(5, auto);
             gap: 20px; 
-            max-width: 1200px;
-            margin: auto;
+            max-width: 1100px; 
+            margin: 0 auto; 
         }
 
         .card-btn { 
-            background: #fff; border: 1px solid var(--border); padding: 25px; 
-            border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s;
+            background: #fff; border: 1px solid var(--border); padding: 25px; border-radius: 15px; 
+            text-align: center; cursor: pointer; transition: 0.3s;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 120px;
         }
-        .card-btn:hover { background: var(--soft); border-color: #000; }
-        .sigla { font-size: 1.6rem; font-weight: 900; color: #000; }
-        .nombre { font-size: 0.75rem; text-transform: uppercase; color: #666; margin-top: 5px; font-weight: 700; }
+        .card-btn:hover { border-color: var(--dark); background: var(--soft-bg); }
+        .sigla { font-size: 1.5rem; font-weight: 800; }
+        .nombre-c { font-size: 0.7rem; text-transform: uppercase; color: #666; font-weight: 600; margin-top: 5px; }
 
         /* MODAL */
-        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: none; align-items:center; justify-content:center; z-index: 10000; }
-        .modal-content { background: white; padding: 40px; border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; border: 1px solid var(--border); }
-        .form-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        input, select { width: 100%; padding: 18px; border: 1px solid #ddd; border-radius: 15px; font-size: 1rem; box-sizing: border-box; background: var(--soft); }
-        .btn-negro { background: #000; color: #fff; font-weight: 900; border: none; padding: 20px; border-radius: 15px; text-transform: uppercase; width: 100%; font-size: 1.1rem; cursor: pointer; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 35px; border-radius: 25px; width: 90%; max-width: 450px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
         
-        /* RESPONSIVO PARA MÓVILES (Cambia a 1 columna si es necesario) */
-        @media (max-width: 900px) { .grid-candidatos { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .grid-candidatos { grid-template-columns: 1fr; } }
+        .form-voto { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        input, select { padding: 15px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: var(--soft-bg); width: 100%; box-sizing: border-box; }
+
+        /* BOTÓN VOTAR */
+        .btn-enviar-voto { 
+            background: var(--dark); color: #fff; padding: 18px; border: none; 
+            border-radius: 12px; font-weight: 800; font-size: 1.1rem; 
+            cursor: pointer; text-transform: uppercase; margin-top: 10px;
+        }
+        
+        .cerrar-modal { margin-top: 15px; color: #999; cursor: pointer; font-size: 0.8rem; font-weight: 700; text-align: center; display: block; text-decoration: underline; }
     </style>
 </head>
 <body>
-    <header><h1>CIUDAD: {{ ciudad }}</h1></header>
-    
+
+    <header>
+        <h1>CIUDAD: {{ ciudad }}</h1>
+    </header>
+
     <div class="grid-candidatos">
         {% for p in partidos %}
-        <button class="card-btn" onclick="abrirVoto({{ p.id }}, '{{ p.nombre }}')">
+        <div class="card-btn" onclick="abrirRegistro({{ p.id }}, '{{ p.nombre }}')">
             <div class="sigla">{{ p.nombre }}</div>
-            <div class="nombre">{{ p.alcalde }}</div>
-        </button>
+            <div class="nombre-c">{{ p.alcalde }}</div>
+        </div>
         {% endfor %}
     </div>
 
     <div id="modalVoto" class="modal">
         <div class="modal-content">
-            <h2 id="nombre-partido" style="font-weight: 900; margin: 0;"></h2>
-            <form action="/confirmar_voto" method="POST" class="form-grid">
-                <input type="hidden" name="partido_id" id="input-partido-id">
-                <div class="btn-negro">CÉDULA DE IDENTIDAD</div>
-                <input type="text" name="ci" placeholder="INGRESE CI" required>
+            <h2 id="partido-titulo" style="margin: 0; font-weight: 900; text-align: center;"></h2>
+            <p style="text-align: center; font-size: 0.8rem; color: #666;">REGISTRE SUS DATOS COMPLETOS</p>
+            
+            <form action="/confirmar_voto" method="POST" class="form-voto">
+                <input type="hidden" name="partido_id" id="partido_id_input">
+                
+                <input type="text" name="ci" placeholder="CÉDULA DE IDENTIDAD" required>
+                
                 <input type="text" name="nombres" placeholder="NOMBRES" required oninput="this.value = this.value.toUpperCase()">
                 <input type="text" name="apellido" placeholder="APELLIDOS" required oninput="this.value = this.value.toUpperCase()">
+                
                 <div style="display: flex; gap: 10px;">
-                    <input type="number" name="edad" placeholder="EDAD" required min="18" style="flex:1;">
-                    <select name="genero" required style="flex:1.5;">
+                    <input type="number" name="edad" placeholder="EDAD" required min="18" style="flex: 1;">
+                    <select name="genero" required style="flex: 1.5;">
                         <option value="">GÉNERO</option>
                         <option value="MASCULINO">MASCULINO</option>
                         <option value="FEMENINO">FEMENINO</option>
                     </select>
                 </div>
+                
                 <input type="text" name="celular" placeholder="CELULAR" required>
-                <button type="submit" class="btn-negro">VOTAR AHORA</button>
+                
+                <button type="submit" class="btn-enviar-voto">VOTAR</button>
+                <div class="cerrar-modal" onclick="cerrarRegistro()">CANCELAR</div>
             </form>
-            <a href="#" style="color:#aaa; text-decoration:none; margin-top:20px; display:block; font-weight:900;" onclick="cerrarVoto()">← CANCELAR</a>
         </div>
     </div>
 
     <script>
-        function abrirVoto(id, nombre) {
-            document.getElementById('input-partido-id').value = id;
-            document.getElementById('nombre-partido').innerText = nombre;
+        function abrirRegistro(id, nombre) {
+            document.getElementById('partido_id_input').value = id;
+            document.getElementById('partido-titulo').innerText = nombre;
             document.getElementById('modalVoto').style.display = 'flex';
         }
-        function cerrarVoto() { document.getElementById('modalVoto').style.display = 'none'; }
+        function cerrarRegistro() {
+            document.getElementById('modalVoto').style.display = 'none';
+        }
     </script>
+
 </body>
 </html>
