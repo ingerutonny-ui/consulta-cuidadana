@@ -3,7 +3,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.secret_key = 'consulta_ciudadana_nancy_2026'
+# Se mantiene la clave secreta técnica
+app.secret_key = 'consulta_ciudadana_2026_oficial'
 
 # Configuración de Base de Datos para Render
 uri = os.environ.get('DATABASE_URL')
@@ -15,7 +16,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# MODELOS
+# MODELOS (Integridad total del Backend)
 class Partido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -35,7 +36,7 @@ class Voto(db.Model):
 def restaurar_datos():
     db.create_all()
     data = [
-        # ORURO (P1 al P15 según PDF oficial)
+        # ORURO (P1 al P15)
         {'n': 'FRI', 'a': 'RENE ROBERTO MAMANI LLAVE', 'c': 'ORURO'},
         {'n': 'LEAL', 'a': 'ADEMAR WILLCARANI MORALES', 'c': 'ORURO'},
         {'n': 'NGP', 'a': 'IVÁN QUISPE GUTIÉRREZ', 'c': 'ORURO'},
@@ -51,7 +52,7 @@ def restaurar_datos():
         {'n': 'SOMOS ORURO', 'a': 'MARCELO CORTEZ GUTIÉRREZ', 'c': 'ORURO'},
         {'n': 'JACHA', 'a': 'MARCELO FERNANDO MEDINA CENTELLAS', 'c': 'ORURO'},
         {'n': 'SOL.BO', 'a': 'MARCELO MEDINA', 'c': 'ORURO'},
-        # LA PAZ (17 Candidatos validados)
+        # LA PAZ (17 Candidatos)
         {'n': 'JALLALLA', 'a': 'SANTOS QUISPE', 'c': 'LA PAZ'},
         {'n': 'ASP', 'a': 'XAVIER ITURRALDE', 'c': 'LA PAZ'},
         {'n': 'VENCEREMOS', 'a': 'WALDO ALBARRACIN', 'c': 'LA PAZ'},
@@ -104,18 +105,17 @@ def confirmar_voto():
         db.session.add(nuevo_voto)
         db.session.commit()
         return render_template('index.html', msg_type="success", ci_votante=ci_f)
-    except:
+    except Exception as e:
         db.session.rollback()
         return redirect(url_for('index'))
 
 @app.route('/reporte')
 def reporte():
-    # Datos Oruro
+    # Consulta de votos para el reporte (PROYECTO EN LA NUBE)
     res_oruro = db.session.query(
         Partido.nombre, Partido.alcalde, db.func.count(Voto.id).label('total')
     ).outerjoin(Voto).filter(Partido.ciudad == 'ORURO').group_by(Partido.id).all()
     
-    # Datos La Paz
     res_lapaz = db.session.query(
         Partido.nombre, Partido.alcalde, db.func.count(Voto.id).label('total')
     ).outerjoin(Voto).filter(Partido.ciudad == 'LA PAZ').group_by(Partido.id).all()
