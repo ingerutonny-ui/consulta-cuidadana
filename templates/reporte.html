@@ -5,47 +5,29 @@
     <title>MONITOREO DE TENDENCIAS</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* RESET BÁSICO */
         @page { size: letter; margin: 0; }
-        body { font-family: sans-serif; margin: 0; padding: 0; background: #fff; }
-
-        /* CONTENEDOR PRINCIPAL */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #fff; color: #000; }
         .container { padding: 10mm 15mm; }
-
-        /* ENCABEZADO COMPACTO */
         .header { 
-            text-align: center; 
-            border-bottom: 3px solid #000; 
-            padding-bottom: 10px; 
-            margin-bottom: 20px; 
+            text-align: center; border-bottom: 3px solid #000; 
+            padding-bottom: 10px; margin-bottom: 20px; 
         }
-        h1 { margin: 0; font-size: 22px; text-transform: uppercase; }
-        .sub { font-size: 12px; font-weight: bold; }
-
-        /* SECCIÓN DE CIUDAD */
+        h1 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: 900; }
+        .sub { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #444; }
         .ciudad-bloque { page-break-inside: avoid; margin-bottom: 30px; }
         .ciudad-banner { 
-            background: #f0f0f0; 
-            padding: 10px; 
-            border-left: 8px solid #000; 
-            display: flex; 
-            justify-content: space-between;
-            align-items: center;
+            background: #f0f0f0; padding: 10px; border-left: 10px solid #000; 
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .total-votos { background: #000; color: #fff; padding: 5px 10px; font-weight: bold; }
-
-        /* GRÁFICO */
-        .chart-box { width: 100%; max-height: 300px; margin: 20px 0; }
-
-        /* TABLA LIGERA */
+        .total-votos { background: #000; color: #fff; padding: 5px 12px; font-weight: 900; border-radius: 3px; }
+        .chart-box { width: 100%; height: 280px; margin: 20px 0; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #eee; border-bottom: 2px solid #000; padding: 8px; text-align: left; font-size: 11px; }
-        td { border-bottom: 1px solid #ddd; padding: 8px; font-size: 12px; }
-        .bold { font-weight: bold; }
-
+        th { background: #eee; border-bottom: 2px solid #000; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; }
+        td { border-bottom: 1px solid #ddd; padding: 10px; font-size: 12px; }
+        .bold { font-weight: 900; }
         @media print {
             .no-print { display: none; }
-            body { -webkit-print-color-adjust: exact; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -58,6 +40,15 @@
         </div>
 
         {% for ciudad, partidos in resultados.items() %}
+        {% set orden_oficial = {
+            'FRI': 1, 'LODEL': 2, 'NGP': 3, 'AORA': 4, 'UN': 5, 
+            'ALIANZA': 6, 'AESA': 7, 'SÚMATE': 8, 'MTS': 9, 'JALLALLA': 10, 
+            'LIBRE': 11, 'PP': 12, 'SOMOS PUEBLO': 13, 'JA-HA': 14, 'PDC': 15
+        } %}
+        {# Ordenamos la lista de partidos según el diccionario de la papeleta oficial #}
+        {% set partidos_ordenados = partidos|sort(attribute='nombre', case_sensitive=False) %}
+        {% set partidos_ordenados = partidos|sort(key=lambda p: orden_oficial.get(p.nombre|upper, 99)) if orden_oficial else partidos %}
+
         <div class="ciudad-bloque">
             <div class="ciudad-banner">
                 <span class="bold">CIUDAD: {{ ciudad }}</span>
@@ -77,11 +68,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for p in partidos %}
+                    {% for p in partidos|sort(attribute='nombre')|sort(key=lambda p: orden_oficial.get(p.nombre|upper, 99)) %}
                     <tr>
                         <td class="bold">{{ p.nombre }}</td>
                         <td style="text-transform: uppercase;">{{ p.alcalde }}</td>
-                        <td style="text-align: right; font-weight: 900;">{{ p.votos }}</td>
+                        <td style="text-align: right; font-weight: 900; font-size: 14px;">{{ p.votos }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -89,29 +80,42 @@
         </div>
 
         <script>
-            new Chart(document.getElementById('chart-{{ loop.index }}'), {
-                type: 'bar',
-                data: {
-                    labels: [{% for p in partidos %}"{{ p.nombre }}",{% endfor %}],
-                    datasets: [{
-                        data: [{% for p in partidos %}{{ p.votos }},{% endfor %}],
-                        backgroundColor: '#000'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                }
-            });
+            (function() {
+                const dataRaw = [
+                    {% for p in partidos|sort(attribute='nombre')|sort(key=lambda p: orden_oficial.get(p.nombre|upper, 99)) %}
+                    { label: "{{ p.nombre }}", value: {{ p.votos }} },
+                    {% endfor %}
+                ];
+
+                new Chart(document.getElementById('chart-{{ loop.index }}'), {
+                    type: 'bar',
+                    data: {
+                        labels: dataRaw.map(d => d.label),
+                        datasets: [{
+                            data: dataRaw.map(d => d.value),
+                            backgroundColor: '#000',
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: { legend: { display: false } },
+                        scales: { 
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { weight: 'bold' } } },
+                            x: { ticks: { font: { size: 10, weight: 'bold' } } }
+                        }
+                    }
+                });
+            })();
         </script>
         {% endfor %}
     </div>
 
-    <div style="text-align: center; margin: 20px;" class="no-print">
-        <button onclick="window.print()" style="padding: 15px 30px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold;">
-            IMPRIMIR REPORTE (PDF)
+    <div style="text-align: center; margin: 30px;" class="no-print">
+        <button onclick="window.print()" style="padding: 18px 40px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: 900; border-radius: 10px; text-transform: uppercase;">
+            IMPRIMIR REPORTE FINAL (PDF)
         </button>
     </div>
 
