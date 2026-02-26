@@ -3,42 +3,68 @@
 <head>
     <title>Reporte de Votación</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">RESULTADOS GENERALES</h2>
+    <div class="container mt-4" id="bloque-reporte">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>REPORTE DE RESULTADOS</h2>
+            <button onclick="exportarPDF()" class="btn btn-danger btn-sm">DESCARGAR PDF</button>
+        </div>
+
         {% for ciudad, partidos in resultados.items() %}
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">{{ ciudad }}</h4>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Partido</th>
-                                <th>Candidato</th>
-                                <th class="text-center">Votos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in partidos %}
-                            <tr>
-                                <td>{{ loop.index }}</td>
-                                <td><strong>{{ p.nombre }}</strong></td>
-                                <td>{{ p.alcalde }}</td>
-                                <td class="text-center"><span class="badge bg-success fs-6">{{ p.votos }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="card mb-5 shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between">
+                <span>{{ ciudad }}</span>
+                <span>TOTAL VOTOS: {{ totales[ciudad] }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <table class="table table-sm">
+                            <thead><tr><th>Partido</th><th>Candidato</th><th>Votos</th></tr></thead>
+                            <tbody>
+                                {% for p in partidos %}
+                                <tr><td>{{ p.nombre }}</td><td>{{ p.alcalde }}</td><td>{{ p.votos }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-5">
+                        <canvas id="chart-{{ loop.index }}"></canvas>
+                    </div>
                 </div>
             </div>
-        {% endfor %}
-        <div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary">Volver al Inicio</a>
         </div>
+        {% endfor %}
     </div>
+
+    <script>
+        {% for ciudad, partidos in resultados.items() %}
+        new Chart(document.getElementById('chart-{{ loop.index }}'), {
+            type: 'bar',
+            data: {
+                labels: [{% for p in partidos %}"{{ p.nombre }}",{% endfor %}],
+                datasets: [{
+                    label: 'Votos',
+                    data: [{% for p in partidos %}{{ p.votos }},{% endfor %}],
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: { indexAxis: 'y', responsive: true }
+        });
+        {% endfor %}
+
+        function exportarPDF() {
+            const element = document.getElementById('bloque-reporte');
+            html2pdf().set({
+                margin: 0,
+                filename: 'reporte.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            }).from(element).save();
+        }
+    </script>
 </body>
 </html>
