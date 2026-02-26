@@ -80,7 +80,7 @@
     <div class="overlay" id="msg-overlay" style="display: flex;">
         <div class="msg-content">
             <h2 style="font-weight: 900; font-size: 1.2rem;" class="{{ 'color-exito' if msg_type == 'success' else 'color-error' }}">
-                {{ '¡VOTO REGISTRADO!' if msg_type == 'success' else 'YA VOTÓ ANTERIORMENTE' }}
+                {{ 'GRACIAS POR VOTAR' if msg_type == 'success' else 'USTED YA VOTÓ' }}
             </h2>
             <div class="ci-box {{ 'bg-exito' if msg_type == 'success' else 'bg-error' }}">
                 {{ ci_votante }}
