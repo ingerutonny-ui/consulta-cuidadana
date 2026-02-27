@@ -5,64 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONSULTA CIUDADANA</title>
     <style>
-        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', sans-serif; background: #fff; overflow-x: hidden; }
+        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', sans-serif; background: #fff; }
         
-        /* SELLO DIGITAL - BLOQUEO TOTAL */
-        #sello-digital { position: fixed; inset:0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; text-align: center; padding: 20px; }
-        .msg-box-red { border: 5px solid #ff0000; padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; background: #fff; }
+        /* BLOQUEO */
+        #sello-digital { position: fixed; inset:0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; text-align: center; }
+        .msg-box-red { border: 5px solid #ff0000; padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; }
 
-        /* SPLASH Y CARGA */
+        /* CARGA */
         #splash { position: fixed; inset:0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         .loader-bar { width: 280px; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; margin: 20px 0; }
-        #bar { width: 0%; height: 100%; background: #000; }
+        #bar { width: 0%; height: 100%; background: #000; transition: width 0.3s; }
 
-        /* CONTENIDO PRINCIPAL */
+        /* PRINCIPAL */
         #main-content { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 20px; }
         .btn-city { border: 2px solid #f0f0f0; padding: 25px; border-radius: 30px; text-decoration: none; color: #000; display: inline-block; margin: 15px; width: 280px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .btn-city img { width: 150px; display: block; margin: 0 auto 10px; }
         .btn-res { background: #000; color: #fff; border: none; padding: 18px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 20px; font-size: 1.2rem; }
 
-        /* CI BLANCO SOBRE AZUL - GARANTIZADO */
+        /* ÉXITO */
         .overlay { position: fixed; inset:0; background: rgba(255,255,255,0.98); display: flex; align-items: center; justify-content: center; z-index: 50000; }
         .box { border: 2px solid #eee; padding: 40px; border-radius: 40px; width: 90%; max-width: 550px; text-align: center; background: #fff; }
-        .ci-container { background: #0000FF !important; padding: 25px; border-radius: 20px; margin: 20px 0; display: block; }
+        .ci-container { background: #0000FF !important; padding: 25px; border-radius: 20px; margin: 20px 0; }
         .ci-num { color: #FFFFFF !important; font-size: 3.2rem; font-weight: 900; -webkit-text-fill-color: white !important; }
 
-        /* --- AJUSTES DE DISEÑO SOLICITADOS --- */
-        .container-frase { margin-top: 25px; padding: 0 10px; line-height: 1.4; }
-        
-        /* Primera frase: ROJO, tamaño original */
-        .frase-roja { 
-            color: #ff0000; 
-            font-size: 0.85rem; 
-            font-weight: 900; 
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        /* Segunda frase: AZUL, más pequeño y delgado */
-        .frase-azul { 
-            color: #0000ff; 
-            font-size: 0.7rem; 
-            font-weight: normal; 
-            display: block;
-        }
+        /* DISEÑO DE FRASES SOLICITADO */
+        .container-frase { margin-top: 25px; line-height: 1.4; }
+        .frase-roja { color: #ff0000; font-size: 0.85rem; font-weight: 900; display: block; margin-bottom: 8px; }
+        .frase-azul { color: #0000ff; font-size: 0.7rem; font-weight: 400; display: block; }
     </style>
-
-    <script>
-        // BLOQUEO INSTANTÁNEO
-        (function() {
-            const yaVoto = localStorage.getItem('voto_registrado_2026') === 'true';
-            const urlParams = new URLSearchParams(window.location.search);
-            const tieneMsg = urlParams.has('msg_type');
-            if (yaVoto && !tieneMsg) {
-                window.addEventListener('DOMContentLoaded', () => {
-                    document.getElementById('sello-digital').style.display = 'flex';
-                    document.getElementById('splash').style.display = 'none';
-                });
-            }
-        })();
-    </script>
 </head>
 <body>
 
@@ -70,15 +40,14 @@
         <div class="msg-box-red">
             <div style="font-size: 6rem; color: #ffa500; margin-bottom: 10px;">⚠️</div>
             <h2 style="font-size: 2.2rem; margin: 10px 0;">ACCESO LIMITADO</h2>
-            <p style="font-weight: 900; color: #666; margin-bottom: 25px;">Dispositivo ya registrado.</p>
             <div style="background: #ff0000; color: white; padding: 20px; border-radius: 15px; font-weight: 900;">VOTO PREVIO DETECTADO</div>
         </div>
     </div>
 
     <div id="splash">
         <div style="display:flex; gap:10px;">
-            <img src="/static/accion2.png" width="120" onerror="this.style.opacity='0'">
-            <img src="/static/accion.png" width="120" onerror="this.style.opacity='0'">
+            <img src="/static/accion2.png" width="120" onerror="this.style.display='none'">
+            <img src="/static/accion.png" width="120" onerror="this.style.display='none'">
         </div>
         <div class="loader-bar"><div id="bar"></div></div>
         <h2 id="pct" style="font-size: 2rem;">0%</h2>
@@ -88,8 +57,8 @@
         <h1>CONSULTA CIUDADANA</h1>
         <p style="letter-spacing: 5px; color: #888; font-weight: 900;">MUNICIPAL 2026</p>
         <div class="btn-city-container">
-            <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png"><span>VOTAR EN: ORURO</span></a>
-            <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png"><span>VOTAR EN: LA PAZ</span></a>
+            <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png">VOTAR EN: ORURO</a>
+            <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png">VOTAR EN: LA PAZ</a>
         </div>
         <button onclick="checkPass()" class="btn-res">RESULTADOS</button>
     </div>
@@ -110,6 +79,36 @@
     {% endif %}
 
     <script>
+        // Lógica unificada para evitar bucles de carga
+        const urlParams = new URLSearchParams(window.location.search);
+        const yaVoto = localStorage.getItem('voto_registrado_2026') === 'true';
+        const tieneMsg = urlParams.has('msg_type');
+
+        // 1. Manejo de LLAVE MAESTRA
+        if (urlParams.get('reset') === 'true') {
+            localStorage.removeItem('voto_registrado_2026');
+            window.location.href = "/";
+        } 
+        // 2. Manejo de BLOQUEO
+        else if (yaVoto && !tieneMsg) {
+            document.getElementById('sello-digital').style.display = 'flex';
+            document.getElementById('splash').style.display = 'none';
+        } 
+        // 3. Manejo de CARGA NORMAL
+        else {
+            let p = 0;
+            let iv = setInterval(() => {
+                p += 10;
+                document.getElementById('bar').style.width = p+'%';
+                document.getElementById('pct').innerText = p+'%';
+                if(p >= 100) { 
+                    clearInterval(iv); 
+                    document.getElementById('splash').style.display='none'; 
+                    document.getElementById('main-content').style.display='flex'; 
+                }
+            }, 30);
+        }
+
         function checkPass() { 
             if(prompt("INGRESE CLAVE DE ACCESO:") === "2648") window.location.href="/reporte"; 
             else alert("ERROR: CLAVE INCORRECTA"); 
@@ -118,24 +117,6 @@
         function marcarVoto(tipo) {
             if(tipo === 'success') localStorage.setItem('voto_registrado_2026', 'true');
         }
-
-        window.onload = () => {
-            const yaVoto = localStorage.getItem('voto_registrado_2026') === 'true';
-            const tieneMsg = "{{ msg_type }}" !== "";
-            if (!yaVoto || tieneMsg) {
-                let p = 0;
-                let iv = setInterval(() => {
-                    p += 10;
-                    document.getElementById('bar').style.width = p+'%';
-                    document.getElementById('pct').innerText = p+'%';
-                    if(p >= 100) { 
-                        clearInterval(iv); 
-                        document.getElementById('splash').style.display='none'; 
-                        document.getElementById('main-content').style.display='flex'; 
-                    }
-                }, 30);
-            }
-        };
     </script>
 </body>
 </html>
