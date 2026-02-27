@@ -76,16 +76,20 @@ def reset_maestro():
 @app.route('/confirmar_voto', methods=['POST'])
 def confirmar_voto():
     ci = request.form['ci']
+    celular = request.form['celular']
     try:
         conn = get_db_connection(); cur = conn.cursor()
-        cur.execute("SELECT ci FROM votos WHERE ci = %s", (ci,))
+        
+        # VALIDACIÓN DOBLE: CI y CELULAR
+        cur.execute("SELECT ci FROM votos WHERE ci = %s OR celular = %s", (ci, celular))
         if cur.fetchone():
             cur.close(); conn.close()
             return redirect(url_for('index', msg_type='error', ci=ci))
+            
         cur.execute("INSERT INTO votos (ci, nombres, apellido, edad, genero, celular, partido_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
-                    (ci, request.form['nombres'].upper(), request.form['apellido'].upper(), request.form['edad'], request.form['genero'], request.form['celular'], request.form['partido_id']))
+                    (ci, request.form['nombres'].upper(), request.form['apellido'].upper(), request.form['edad'], request.form['genero'], celular, request.form['partido_id']))
         conn.commit(); cur.close(); conn.close()
-        enviar_whatsapp(request.form['celular'], ci)
+        enviar_whatsapp(celular, ci)
         return redirect(url_for('index', msg_type='success', ci=ci))
     except: return redirect(url_for('index', msg_type='error', ci=ci))
 
