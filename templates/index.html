@@ -73,7 +73,9 @@
     <div class="flask-overlay">
         <div class="msg-box-voto">
             <h2 style="color: var(--blue); font-size: 2rem; margin-bottom: 10px;">¡VOTO REGISTRADO!</h2>
-            <div class="ci-box">{{ ci_votante }}</div>
+            <div style="background-color: #0000ff !important; color: #ffffff !important; padding: 30px; border-radius: 25px; font-size: 3.5rem; font-weight: 900; margin: 25px auto; display: block; width: 90%; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); -webkit-print-color-adjust: exact;">
+    <span style="color: #ffffff !important;">{{ ci_votante }}</span>
+</div>
             <a href="/" onclick="marcarVoto()" class="btn-continuar">CONTINUAR</a>
         </div>
     </div>
