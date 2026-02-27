@@ -45,7 +45,7 @@ def obtener_partidos(ciudad):
         {"id": 2, "nombre": "LEAL", "alcalde": "ADEMAR WILLCARANI MORALES"},
         {"id": 3, "nombre": "NGP", "alcalde": "IVAN QUISPE GUTIERREZ"},
         {"id": 4, "nombre": "AORA", "alcalde": "SANTIAGO CONDORI APAZA"},
-        {"id": 5, "nombre": "UN", "alcalde": "ENRIQUE FERNANDO"},
+        {"id": 5, "nombre": "UN", "alcalde": "ENRIQUE FERNANDO URQUIDI"},
         {"id": 6, "nombre": "AUPP", "alcalde": "JUAN CARLOS CHOQUE ZUBIETA"},
         {"id": 7, "nombre": "UCS", "alcalde": "LINO MARCOS MAIN"},
         {"id": 8, "nombre": "SÚMATE", "alcalde": "OSCAR MIGUEL TOCO CHOQUE"},
@@ -54,7 +54,7 @@ def obtener_partidos(ciudad):
         {"id": 11, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS"},
         {"id": 12, "nombre": "PP", "alcalde": "CARLOS AGUILAR"},
         {"id": 13, "nombre": "SOMOS ORURO", "alcalde": "MARCELO CORTEZ GUTIERREZ"},
-        {"id": 14, "nombre": "JACHA", "alcalde": "MARCELO FERNANDO MEDINA"}
+        {"id": 14, "nombre": "JACHA", "alcalde": "MARCELO FERNANDO MEDINA CENTELLAS"}
     ]
 
 @app.route('/')
