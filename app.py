@@ -1,183 +1,142 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONSULTA CIUDADANA MUNICIPAL</title>
-    <style>
-        :root { --dark: #1a1a1a; --soft-bg: #ffffff; }
-        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--soft-bg); overflow-x: hidden; }
+import os
+import psycopg2
+import requests
+from flask import Flask, render_template, request, redirect, url_for
 
-        /* SPLASH SCREEN */
-        #splash {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: white; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 10000;
-        }
-        .splash-header { display: flex; gap: 20px; margin-bottom: 30px; align-items: center; }
-        /* AJUSTE DE RESPONSIVIDAD PARA LOS SELLOS */
-        .splash-header img { 
-            width: clamp(80px, 15vw, 120px); /* Tamaño responsivo */
-            height: auto; 
-            object-fit: contain; 
-        }
-        .loader-container { width: 250px; height: 8px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
-        .loader-bar { width: 0%; height: 100%; background: #000; transition: width 0.1s; }
-        .loader-text { margin-top: 10px; font-weight: 900; font-size: 2rem; }
+app = Flask(__name__)
 
-        /* CONTENIDO PRINCIPAL */
-        .wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; opacity: 0; transition: 0.5s; }
-        .show-content { opacity: 1; }
+# LLAVE MAESTRA DEFINIDA POR EL INGE
+CLAVE_MAESTRA = "INGE_ACCESO_TOTAL_2026"
+
+def get_db_connection():
+    return psycopg2.connect(os.environ.get('DATABASE_URL'))
+
+def enviar_whatsapp(numero, ci):
+    url = "https://api.ultramsg.com/instance163345/messages/chat"
+    mensaje = (
+        f"✅ *VOTO REGISTRADO EXITOSAMENTE*\n\n"
+        f"Se ha confirmado su participación con el CI: *{ci}*.\n"
+        f"Gracias por ser parte de la Consulta Ciudadana."
+    )
+    payload = {
+        "token": "rmcd9oavsczcgdg4",
+        "to": f"+591{numero}",
+        "body": mensaje
+    }
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+    try:
+        requests.post(url, data=payload, headers=headers, timeout=5)
+    except:
+        pass
+
+def obtener_partidos(ciudad):
+    ciudad_upper = ciudad.upper()
+    if "LA PAZ" in ciudad_upper:
+        return [
+            {"id": 101, "nombre": "JALLALLA", "alcalde": "JHONNY PLATA"},
+            {"id": 102, "nombre": "ASP", "alcalde": "XAVIER ITURRALDE"},
+            {"id": 103, "nombre": "VENCEREMOS", "alcalde": "WALDO ALBARRACÍN"},
+            {"id": 104, "nombre": "SOMOS LA PAZ", "alcalde": "MIGUEL ROCA"},
+            {"id": 105, "nombre": "UPC", "alcalde": "LUIS EDUARDO SILES"},
+            {"id": 106, "nombre": "LIBRE", "alcalde": "CARLOS PALENQUE"},
+            {"id": 107, "nombre": "A-UPP", "alcalde": "ISAAC FERNÁNDEZ"},
+            {"id": 108, "nombre": "INNOVACIÓN HUMANA", "alcalde": "CÉSAR DOCKWEILER"},
+            {"id": 109, "nombre": "VIDA", "alcalde": "FERNANDO VALENCIA"},
+            {"id": 110, "nombre": "FRI", "alcalde": "RAÚL DAZA"},
+            {"id": 111, "nombre": "PDC", "alcalde": "MARIO SILVA"},
+            {"id": 112, "nombre": "MTS", "alcalde": "JORGE DULON"},
+            {"id": 113, "nombre": "NGP", "alcalde": "HERNÁN RODRIGO RIVERA"},
+            {"id": 114, "nombre": "MPS", "alcalde": "RICARDO CUEVAS"},
+            {"id": 115, "nombre": "APB-SÚMATE", "alcalde": "ÓSCAR SOGLIANO"},
+            {"id": 116, "nombre": "ALIANZA PATRIA", "alcalde": "CARLOS NEMO RIVERA"},
+            {"id": 117, "nombre": "SUMA POR EL BIEN COMÚN", "alcalde": "IVÁN ARIAS"}
+        ]
+    else:
+        return [
+            {"id": 1, "nombre": "FRI", "alcalde": "RENE ROBERTO MAMANI LLAVE"},
+            {"id": 2, "nombre": "LEAL", "alcalde": "ADEMAR WILLCARANI MORALES"},
+            {"id": 3, "nombre": "NGP", "alcalde": "IVAN QUISPE GUTIERREZ"},
+            {"id": 4, "nombre": "AORA", "alcalde": "SANTIAGO CONDORI APAZA"},
+            {"id": 5, "nombre": "UN", "alcalde": "ENRIQUE FERNANDO"},
+            {"id": 6, "nombre": "AUPP", "alcalde": "JUAN CARLOS CHOQUE ZUBIETA"},
+            {"id": 7, "nombre": "UCS", "alcalde": "LINO MARCOS MAIN"},
+            {"id": 8, "nombre": "SÚMATE", "alcalde": "OSCAR MIGUEL TOCO CHOQUE"},
+            {"id": 9, "nombre": "MTS", "alcalde": "OLIVER OSCAR POMA CARTAGENA"},
+            {"id": 10, "nombre": "ALIANZA PATRIA ORURO", "alcalde": "RAFAEL VARGAS VILLEGAS"},
+            {"id": 11, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS"},
+            {"id": 12, "nombre": "PP", "alcalde": "CARLOS AGUILAR"},
+            {"id": 13, "nombre": "SOMOS ORURO", "alcalde": "MARCELO CORTEZ GUTIERREZ"},
+            {"id": 14, "nombre": "JACHA", "alcalde": "MARCELO FERNANDO MEDINA"}
+        ]
+
+@app.route('/')
+def index():
+    return render_template('index.html', 
+                           msg_type=request.args.get('msg_type'), 
+                           ci_votante=request.args.get('ci'),
+                           reset=request.args.get('reset'))
+
+@app.route('/votar/<ciudad>')
+def votar(ciudad):
+    c_nom = ciudad.upper().replace("_", " ")
+    return render_template('votar.html', ciudad=c_nom, partidos=obtener_partidos(c_nom))
+
+@app.route('/reset_maestro')
+def reset_maestro():
+    clave = request.args.get('clave')
+    if clave == CLAVE_MAESTRA:
+        return redirect(url_for('index', reset='true'))
+    return "ACCESO DENEGADO", 403
+
+@app.route('/confirmar_voto', methods=['POST'])
+def confirmar_voto():
+    ci = request.form['ci']
+    celular = request.form['celular']
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT ci FROM votos WHERE ci = %s", (ci,))
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return redirect(url_for('index', msg_type='error', ci=ci))
         
-        .hero-card { 
-            background: white; padding: 50px 30px; border-radius: 40px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.05); text-align: center; 
-            width: 100%; max-width: 1000px; border: 1px solid #f0f0f0; 
-        }
+        cur.execute('''INSERT INTO votos (ci, nombres, apellido, edad, genero, celular, partido_id) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)''', 
+                    (ci, request.form['nombres'].upper(), request.form['apellido'].upper(), 
+                     request.form['edad'], request.form['genero'], celular, request.form['partido_id']))
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        enviar_whatsapp(celular, ci)
+        return redirect(url_for('index', msg_type='success', ci=ci))
+    except:
+        return redirect(url_for('index', msg_type='error', ci=ci))
 
-        h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900; text-transform: uppercase; line-height: 1; margin: 0; }
-        .sub-municipal { font-size: clamp(1rem, 3vw, 1.5rem); font-weight: 900; letter-spacing: 6px; display: block; margin-top: 5px; }
-        .line { width: 100px; height: 6px; background: #000; margin: 20px auto 40px; border-radius: 10px; }
+@app.route('/reporte')
+def reporte():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT partido_id, COUNT(*) FROM votos GROUP BY partido_id')
+        conteos = dict(cur.fetchall())
+        cur.close()
+        conn.close()
+        res = {}
+        totales = {}
+        for ciudad in ["ORURO", "LA PAZ"]:
+            lista = obtener_partidos(ciudad)
+            suma = 0
+            for p in lista:
+                p['votos'] = conteos.get(p['id'], 0)
+                suma += p['votos']
+            res[ciudad] = lista
+            totales[ciudad] = suma
+        return render_template('reporte.html', resultados=res, totales=totales)
+    except:
+        return "Error en reporte", 500
 
-        /* BOTONES DE CIUDAD */
-        .btn-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 25px; 
-        }
-        .btn-city { 
-            background: #fff; border: 2px solid #f9f9f9; padding: 40px 20px; 
-            border-radius: 30px; text-decoration: none; display: flex; 
-            flex-direction: column; align-items: center; transition: 0.3s;
-        }
-        .btn-city:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); border-color: #eee; }
-        .btn-city img { width: 150px; height: 150px; object-fit: contain; margin-bottom: 20px; }
-        .btn-city span { color: #000; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; }
-
-        /* BOTÓN RESULTADOS */
-        .footer-link { margin-top: 40px; padding-top: 30px; border-top: 1px solid #eee; }
-        .btn-resultados { 
-            display: inline-block; width: 100%; max-width: 400px; padding: 20px;
-            background: #000; color: #fff; text-decoration: none; border-radius: 50px;
-            font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 3px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: 0.3s;
-        }
-        .btn-resultados:hover { transform: scale(1.03); background: #222; }
-
-        /* MENSAJES DE VOTO Y BLOQUEO */
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); display:flex; align-items:center; justify-content:center; z-index:11000; }
-        .msg-box { background:white; padding:40px; border-radius:40px; text-align:center; width:90%; max-width:450px; box-shadow:0 20px 50px rgba(0,0,0,0.1); border:1px solid #eee; }
-
-        @media (max-width: 480px) {
-            .hero-card { padding: 30px 15px; }
-            .btn-city { padding: 20px 10px; }
-            .btn-city img { width: 100px; height: 100px; }
-            .btn-city span { font-size: 0.9rem; }
-            /* AJUSTE ADICIONAL PARA CELULARES PEQUEÑOS */
-            .splash-header img {
-                width: 70px; 
-            }
-        }
-    </style>
-</head>
-<body>
-    <div id="block-overlay" class="overlay" style="display: none;">
-        <div class="msg-box">
-            <h2 style="font-weight:900; color: #ff0000; margin-bottom:20px; text-transform:uppercase;">
-                ⚠️ ACCESO LIMITADO
-            </h2>
-            <p style="font-weight: 700; color: #555; margin-bottom: 25px;">
-                Se ha detectado que desde este dispositivo ya se emitió un voto. Por seguridad, solo se permite una participación por equipo móvil.
-            </p>
-            <div style="padding:20px; background: #ff0000; color:#fff; border-radius:20px; font-size:1.2rem; font-weight:900; margin-bottom:25px;">
-                DISPOSITIVO REGISTRADO
-            </div>
-            <a href="/reporte" style="padding:15px 40px; background:#000; color:#fff; text-decoration:none; border-radius:20px; font-weight:900; text-transform:uppercase;">VER RESULTADOS</a>
-        </div>
-    </div>
-
-    <div id="splash">
-        <div class="splash-header">
-            <img src="/static/accion2.png" alt="">
-            <img src="/static/accion.png" alt="">
-        </div>
-        <div class="loader-container"><div class="loader-bar" id="bar"></div></div>
-        <div class="loader-text" id="percent">0%</div>
-    </div>
-
-    <div class="wrapper" id="main-content">
-        <div class="hero-card">
-            <h1>CONSULTA CIUDADANA<br><span class="sub-municipal">MUNICIPAL</span></h1>
-            <div class="line"></div>
-            <div class="btn-container">
-                <a href="/votar/ORURO" class="btn-city">
-                    <img src="/static/oruro.png">
-                    <span>MUNICIPIO DE: ORURO</span>
-                </a>
-                <a href="/votar/LA PAZ" class="btn-city">
-                    <img src="/static/lapaz.png">
-                    <span>MUNICIPIO DE: LA PAZ</span>
-                </a>
-            </div>
-            <div class="footer-link">
-                <a href="/reporte" class="btn-resultados">RESULTADOS</a>
-            </div>
-        </div>
-    </div>
-
-    {% if msg_type %}
-    <div class="overlay" id="voto-overlay">
-        <div class="msg-box">
-            <h2 style="font-weight:900; color: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; margin-bottom:20px; text-transform:uppercase;">
-                {{ 'GRACIAS POR VOTAR' if msg_type == 'success' else 'USTED YA VOTÓ...!!!' }}
-            </h2>
-            <div style="padding:20px; background: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; color:#fff; border-radius:20px; font-size:2rem; font-weight:900; margin-bottom:25px;">
-                {{ ci_votante if ci_votante else '' }}
-            </div>
-            <a href="/" onclick="marcarVoto('{{ msg_type }}')" style="padding:15px 40px; background:#000; color:#fff; text-decoration:none; border-radius:20px; font-weight:900; text-transform:uppercase;">CONTINUAR</a>
-        </div>
-    </div>
-    {% endif %}
-
-    <script>
-        function marcarVoto(tipo) {
-            if(tipo === 'success') {
-                localStorage.setItem('voto_completado', 'true');
-            }
-        }
-
-        function verificarBloqueo() {
-            if (localStorage.getItem('voto_completado') === 'true' && !document.getElementById('voto-overlay')) {
-                document.getElementById('block-overlay').style.display = 'flex';
-                document.getElementById('main-content').style.display = 'none';
-            }
-        }
-
-        window.onload = () => {
-            verificarBloqueo(); 
-
-            let p = 0;
-            const b = document.getElementById('bar');
-            const t = document.getElementById('percent');
-            const s = document.getElementById('splash');
-            const c = document.getElementById('main-content');
-            
-            const timer = setInterval(() => {
-                p += Math.floor(Math.random() * 15) + 5;
-                if(p >= 100) {
-                    p = 100;
-                    clearInterval(timer);
-                    setTimeout(() => {
-                        s.style.display = 'none';
-                        if (localStorage.getItem('voto_completado') !== 'true') {
-                            c.classList.add('show-content');
-                        }
-                    }, 400);
-                }
-                b.style.width = p + '%';
-                t.innerText = p + '%';
-            }, 70);
-        };
-    </script>
-</body>
-</html>
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
