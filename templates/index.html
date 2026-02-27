@@ -5,76 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONSULTA CIUDADANA</title>
     <style>
-        :root { --danger: #ff0000; --primary: #000; }
+        :root { --danger: #ff0000; }
         body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', sans-serif; background: #fff; overflow-x: hidden; }
 
-        /* SPLASH SCREEN - RESPONSIVO */
-        #splash {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: white; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 10000;
-        }
-        .splash-header { display: flex; gap: 20px; margin-bottom: 40px; padding: 0 20px; }
+        /* SPLASH SCREEN */
+        #splash { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
+        .splash-header { display: flex; gap: 20px; margin-bottom: 40px; }
         .splash-header img { width: clamp(140px, 30vw, 220px); height: auto; }
         .loader-container { width: 250px; height: 10px; background: #eee; border-radius: 10px; overflow: hidden; }
-        .loader-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.1s; }
+        .loader-bar { width: 0%; height: 100%; background: #000; }
         .loader-text { margin-top: 10px; font-weight: 900; font-size: 2rem; }
 
-        /* CONTENIDO PRINCIPAL */
-        #main-content { 
-            display: none; opacity: 0; transition: 0.8s; 
-            flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; padding: 20px; box-sizing: border-box;
-        }
-        
-        .title-main { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; margin: 0; text-align: center; }
-        .subtitle-main { letter-spacing: 8px; font-weight: 900; color: #666; font-size: 1rem; margin-bottom: 40px; }
+        /* CONTENIDO PRINCIPAL RESPONSIVO */
+        #main-content { display: none; opacity: 0; transition: 0.8s; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 900px; }
+        .btn-city { background: #fff; border: 1px solid #ddd; padding: 25px; border-radius: 25px; text-decoration: none; color: #000; font-weight: 900; display: flex; flex-direction: column; align-items: center; width: 260px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .btn-city img { width: 110px; height: 110px; object-fit: contain; margin-bottom: 15px; }
 
-        /* BOTONES DE CIUDADES - DISEÑO LIMPIO */
-        .btn-container { 
-            display: flex; flex-wrap: wrap; justify-content: center;
-            gap: 25px; width: 100%; max-width: 900px; 
-        }
-        .btn-city { 
-            background: #fff; border: 1px solid #ddd; padding: 30px; border-radius: 25px; 
-            text-decoration: none; color: #000; font-weight: 900; 
-            display: flex; flex-direction: column; align-items: center; 
-            width: 280px; transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        .btn-city:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .btn-city img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 20px; }
-        .btn-city span { font-size: 1.1rem; text-transform: uppercase; }
-
-        /* BLOQUEO ROJO (SELLO DIGITAL) */
+        /* BLOQUEO ROJO (SELLO DIGITAL) - BLINDADO */
         #block-overlay { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: #fff; display: none; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 9000; padding: 20px;
+            align-items: center; justify-content: center; z-index: 11000; padding: 20px;
         }
-        .msg-box { text-align: center; padding: 40px; border: 1px solid #eee; border-radius: 40px; width: 100%; max-width: 450px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); }
+        .msg-box-red { text-align: center; padding: 40px; border: 2px solid #eee; border-radius: 40px; width: 90%; max-width: 400px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
 
-        /* MENSAJE POST-VOTO (EXITO/ERROR) */
+        /* MENSAJE POST-VOTO */
         .voto-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); display: flex; align-items: center; justify-content: center; z-index: 12000; padding: 20px; }
 
-        /* RESPONSIVIDAD PARA CELULARES */
-        @media (max-width: 600px) {
-            .btn-city { width: 100%; padding: 20px; }
-            .btn-city img { width: 100px; height: 100px; }
-            .subtitle-main { letter-spacing: 4px; }
-        }
+        @media (max-width: 600px) { .btn-city { width: 100%; } }
     </style>
 </head>
 <body>
 
     <div id="block-overlay">
-        <div class="msg-box">
+        <div class="msg-box-red">
             <div style="font-size: 5rem; margin-bottom: 10px;">⚠️</div>
-            <h2 style="color: var(--danger); font-weight: 900; font-size: 2rem; margin-bottom: 15px;">ACCESO LIMITADO</h2>
-            <p style="font-weight: bold; color: #444; font-size: 1.1rem; line-height: 1.5; margin-bottom: 30px;">
-                Se ha detectado un voto previo desde este dispositivo en la <strong>CONSULTA CIUDADANA</strong>.
+            <h2 style="color: var(--danger); font-weight: 900; font-size: 1.8rem; margin-bottom: 15px;">ACCESO LIMITADO</h2>
+            <p style="font-weight: bold; color: #444; line-height: 1.5; margin-bottom: 30px;">
+                Se ha detectado un voto previo en la <strong>CONSULTA CIUDADANA</strong> desde este dispositivo.
             </p>
-            <div style="background: var(--danger); color: #fff; padding: 20px; border-radius: 20px; font-weight: 900; font-size: 1.2rem; letter-spacing: 1px;">
+            <div style="background: var(--danger); color: #fff; padding: 20px; border-radius: 20px; font-weight: 900; font-size: 1.2rem; text-transform: uppercase;">
                 DISPOSITIVO REGISTRADO
             </div>
         </div>
@@ -90,81 +61,55 @@
     </div>
 
     <div id="main-content">
-        <h1 class="title-main">CONSULTA CIUDADANA</h1>
-        <p class="subtitle-main">MUNICIPAL</p>
-        
+        <h1 style="font-weight: 900; text-align: center; margin: 0; font-size: 2rem;">CONSULTA CIUDADANA</h1>
+        <p style="letter-spacing: 6px; font-weight: 900; color: #666; margin-bottom: 30px;">MUNICIPAL</p>
         <div class="btn-container">
-            <a href="/votar/ORURO" class="btn-city">
-                <img src="/static/oruro.png" alt="Escudo Oruro">
-                <span>VOTAR EN: ORURO</span>
-            </a>
-            <a href="/votar/LA PAZ" class="btn-city">
-                <img src="/static/lapaz.png" alt="Escudo La Paz">
-                <span>VOTAR EN: LA PAZ</span>
-            </a>
+            <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png"><span>VOTAR EN: ORURO</span></a>
+            <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png"><span>VOTAR EN: LA PAZ</span></a>
         </div>
-        
-        <a href="/reporte" style="display: inline-block; margin-top: 50px; padding: 18px 60px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 50px; font-weight: 900; font-size: 1rem; letter-spacing: 2px; transition: 0.3s;">
-            RESULTADOS
-        </a>
+        <a href="/reporte" style="display: inline-block; margin-top: 40px; padding: 15px 50px; background: #000; color: #fff; text-decoration: none; border-radius: 50px; font-weight: 900;">RESULTADOS</a>
     </div>
 
     {% if msg_type %}
     <div class="voto-overlay">
-        <div class="msg-box">
-            <h2 style="color: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; font-weight: 900; text-transform: uppercase; font-size: 1.8rem; margin-bottom: 20px;">
-                {{ '¡GRACIAS POR VOTAR!' if msg_type == 'success' else 'ACCESO DENEGADO' }}
+        <div class="msg-box-red" style="border-color: #eee;">
+            <h2 style="color: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; font-weight: 900; text-transform: uppercase;">
+                {{ '¡Gracias por Votar!' if msg_type == 'success' else 'Usted ya votó' }}
             </h2>
-            <p style="font-weight: bold; color: #555; margin-bottom: 20px;">
-                {{ 'Su participación ha sido registrada con el CI:' if msg_type == 'success' else 'Usted ya emitió su voto con el CI:' }}
-            </p>
-            <div style="background: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; color:#fff; padding: 20px; border-radius: 20px; font-size: 1.6rem; font-weight: 900; margin-bottom: 30px;">
+            <div style="background: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; color:#fff; padding: 20px; border-radius: 20px; font-size: 1.5rem; font-weight: 900; margin: 20px 0;">
                 {{ ci_votante }}
             </div>
-            <a href="/" onclick="marcarVoto('{{ msg_type }}')" style="display: block; padding: 18px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 15px; font-weight: 900; font-size: 1.1rem;">CONTINUAR</a>
+            <a href="/" onclick="marcarVoto('{{ msg_type }}')" style="display: block; padding: 15px; background: #000; color: #fff; text-decoration: none; border-radius: 15px; font-weight: 900;">CONTINUAR</a>
         </div>
     </div>
     {% endif %}
 
     <script>
-        // Sello Digital - Reset Maestro
-        if (new URLSearchParams(window.location.search).get('reset') === 'true') {
-            localStorage.removeItem('voto_completado');
-        }
+        if (new URLSearchParams(window.location.search).get('reset') === 'true') { localStorage.removeItem('voto_completado'); }
 
-        function marcarVoto(tipo) {
-            if(tipo === 'success') { localStorage.setItem('voto_completado', 'true'); }
-        }
+        function marcarVoto(tipo) { if(tipo === 'success') { localStorage.setItem('voto_completado', 'true'); } }
 
         window.onload = () => {
-            const bar = document.getElementById('bar');
-            const pct = document.getElementById('percent');
             let p = 0;
-
-            const interval = setInterval(() => {
+            const timer = setInterval(() => {
                 p += 5;
-                if(p > 100) p = 100;
-                bar.style.width = p + '%';
-                pct.innerText = p + '%';
-
+                document.getElementById('bar').style.width = p + '%';
+                document.getElementById('percent').innerText = p + '%';
                 if(p >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('splash').style.display = 'none';
-                        const hasVoted = localStorage.getItem('voto_completado') === 'true';
-                        const isShowingMsg = "{{ msg_type }}" !== ""; 
+                    clearInterval(timer);
+                    document.getElementById('splash').style.display = 'none';
+                    const hasVoted = localStorage.getItem('voto_completado') === 'true';
+                    const isShowingMsg = "{{ msg_type }}" !== ""; 
 
-                        // Lógica del Sello Digital: Si ya votó y no hay mensaje de éxito activo, bloquear.
-                        if (hasVoted && !isShowingMsg) {
-                            document.getElementById('block-overlay').style.display = 'flex';
-                        } else {
-                            const main = document.getElementById('main-content');
-                            main.style.display = 'flex';
-                            setTimeout(() => main.style.opacity = '1', 50);
-                        }
-                    }, 300);
+                    if (hasVoted && !isShowingMsg) {
+                        document.getElementById('block-overlay').style.display = 'flex';
+                    } else {
+                        const main = document.getElementById('main-content');
+                        main.style.display = 'flex';
+                        setTimeout(() => main.style.opacity = '1', 50);
+                    }
                 }
-            }, 50);
+            }, 40);
         };
     </script>
 </body>
