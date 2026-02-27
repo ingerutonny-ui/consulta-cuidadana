@@ -8,16 +8,16 @@
         :root { --danger: #ff0000; --blue: #0000ff; }
         body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', sans-serif; background: #fff; overflow-x: hidden; }
 
-        /* SPLASH SCREEN - LOGOS TAMAÑO ORIGINAL */
-        #splash { position: fixed; inset:0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100000; }
-        .splash-header { display: flex; gap: 20px; margin-bottom: 40px; }
-        .splash-header img { width: 140px; height: auto; } /* Ajuste según image_3417d6 */
-        .loader-container { width: 280px; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; }
-        .loader-bar { width: 0%; height: 100%; background: #000; transition: width 0.1s; }
-
-        /* SELLO DIGITAL (BLOQUEO) */
+        /* SELLO DIGITAL - BLOQUEO */
         #sello-digital { position: fixed; inset:0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 999999; text-align: center; padding: 20px; }
         .msg-box-red { border: 4px solid var(--danger); padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; }
+
+        /* SPLASH SCREEN */
+        #splash { position: fixed; inset:0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100000; }
+        .splash-header { display: flex; gap: 20px; margin-bottom: 40px; }
+        .splash-header img { width: 140px; height: auto; }
+        .loader-container { width: 280px; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; }
+        .loader-bar { width: 0%; height: 100%; background: #000; transition: width 0.1s; }
 
         /* CONTENIDO PRINCIPAL */
         #main-content { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; text-align: center; }
@@ -29,24 +29,39 @@
         .btn-city { background: #fff; border: 2px solid #f0f0f0; padding: 30px; border-radius: 35px; text-decoration: none; color: #000; font-weight: 900; display: flex; flex-direction: column; align-items: center; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .btn-city img { width: 160px; height: 160px; object-fit: contain; margin-bottom: 20px; }
 
-        /* BOTÓN RESULTADOS - RESTAURADO */
-        .btn-resultados { background: #000; color: #fff; text-decoration: none; padding: 18px 60px; border-radius: 50px; font-size: 1.4rem; font-weight: 900; transition: transform 0.2s; }
+        /* BOTÓN RESULTADOS */
+        .btn-resultados { background: #000; color: #fff; border: none; padding: 18px 60px; border-radius: 50px; font-size: 1.4rem; font-weight: 900; cursor: pointer; }
 
-        /* OVERLAY VOTO - CI BLANCO SOBRE AZUL */
+        /* OVERLAY VOTO - CI FORZADO BLANCO */
         .flask-overlay { position: fixed; inset:0; background: rgba(255,255,255,0.98); display: flex; align-items: center; justify-content: center; z-index: 500000; }
-        .msg-box-voto { border: 2px solid #eee; padding: 40px; border-radius: 40px; width: 90%; max-width: 550px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .ci-box { background: var(--blue); color: #fff !important; padding: 25px; border-radius: 20px; font-size: 3rem; font-weight: 900; margin: 20px 0; display: block; text-align: center; }
-        .btn-continuar { display: block; background: #000; color: #fff; text-decoration: none; padding: 20px; border-radius: 20px; font-weight: 900; font-size: 1.2rem; }
+        .msg-box-voto { border: 2px solid #eee; padding: 40px; border-radius: 40px; width: 90%; max-width: 550px; text-align: center; background: #fff; }
+        
+        /* PARCHE MAESTRO CI */
+        .ci-box-fix { 
+            background-color: blue !important; 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin: 20px auto; 
+            width: 90%; 
+            display: block; 
+        }
+        .ci-text { 
+            color: white !important; 
+            font-size: 3rem; 
+            font-weight: 900; 
+            display: block;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <div id="sello-digital">
         <div class="msg-box-red">
-            <div style="font-size: 6rem; color: #ffa500; margin-bottom: 10px;">⚠️</div>
-            <h2 style="font-size: 2.5rem; margin: 10px 0;">ACCESO LIMITADO</h2>
-            <p style="font-weight: bold; margin-bottom: 30px;">Dispositivo ya registrado.</p>
-            <div style="background: var(--danger); color: white; padding: 15px; border-radius: 15px; font-weight: 900; display: inline-block; width: 100%; box-sizing: border-box;">VOTO PREVIO DETECTADO</div>
+            <div style="font-size: 6rem; color: #ffa500;">⚠️</div>
+            <h2>ACCESO LIMITADO</h2>
+            <p>Dispositivo ya registrado.</p>
+            <div style="background: red; color: white; padding: 15px; border-radius: 15px; font-weight: 900;">VOTO PREVIO DETECTADO</div>
         </div>
     </div>
 
@@ -66,49 +81,55 @@
             <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png"><span>VOTAR EN: ORURO</span></a>
             <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png"><span>VOTAR EN: LA PAZ</span></a>
         </div>
-        <a href="/reporte" class="btn-resultados">RESULTADOS</a>
+        <button onclick="accesoReporte()" class="btn-resultados">RESULTADOS</button>
     </div>
 
     {% if msg_type %}
     <div class="flask-overlay">
         <div class="msg-box-voto">
-            <h2 style="color: var(--blue); font-size: 2rem; margin-bottom: 10px;">¡VOTO REGISTRADO!</h2>
-            <div style="background-color: #0000ff !important; color: #ffffff !important; padding: 30px; border-radius: 25px; font-size: 3.5rem; font-weight: 900; margin: 25px auto; display: block; width: 90%; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); -webkit-print-color-adjust: exact;">
-    <span style="color: #ffffff !important;">{{ ci_votante }}</span>
-</div>
-            <a href="/" onclick="marcarVoto()" class="btn-continuar">CONTINUAR</a>
+            <h2 style="color: blue; font-size: 2rem;">¡VOTO REGISTRADO!</h2>
+            <div class="ci-box-fix">
+                <span class="ci-text">{{ ci_votante }}</span>
+            </div>
+            <a href="/" onclick="localStorage.setItem('voto_registrado_2026', 'true')" style="display: block; background: #000; color: #fff; text-decoration: none; padding: 20px; border-radius: 20px; font-weight: 900;">CONTINUAR</a>
         </div>
     </div>
     {% endif %}
 
     <script>
-        function marcarVoto() { localStorage.setItem('voto_registrado_2026', 'true'); }
+        // Función de seguridad para el Reporte
+        function accesoReporte() {
+            const pass = prompt("INGRESE CONTRASEÑA DE ACCESO:");
+            if (pass === "2648") {
+                window.location.href = "/reporte";
+            } else {
+                alert("ACCESO DENEGADO. CONTRASEÑA INCORRECTA.");
+            }
+        }
 
         window.onload = () => {
             const yaVoto = localStorage.getItem('voto_registrado_2026') === 'true';
-            const msgActivo = "{{ msg_type }}";
-            const modoReset = "{{ reset }}" === "true";
+            const msgServer = "{{ msg_type }}";
+            const reset = "{{ reset }}" === "true";
 
-            if (modoReset) { localStorage.removeItem('voto_registrado_2026'); window.location.href = "/"; return; }
+            if (reset) { localStorage.removeItem('voto_registrado_2026'); window.location.href = "/"; return; }
 
-            // Lógica de bloqueo SELLO DIGITAL
-            if (yaVoto && !msgActivo) {
+            if (yaVoto && !msgServer) {
                 document.getElementById('splash').style.display = 'none';
                 document.getElementById('sello-digital').style.display = 'flex';
                 return;
             }
 
-            // Animación Splash
-            let carga = 0;
+            let p = 0;
             const bar = document.getElementById('bar');
             const pct = document.getElementById('percent');
-            const loop = setInterval(() => {
-                carga += 5;
-                if(carga > 100) carga = 100;
-                bar.style.width = carga + '%';
-                pct.innerText = carga + '%';
-                if(carga >= 100) {
-                    clearInterval(loop);
+            const interval = setInterval(() => {
+                p += 5;
+                if(p > 100) p = 100;
+                bar.style.width = p + '%';
+                pct.innerText = p + '%';
+                if(p >= 100) {
+                    clearInterval(interval);
                     document.getElementById('splash').style.display = 'none';
                     document.getElementById('main-content').style.display = 'flex';
                 }
