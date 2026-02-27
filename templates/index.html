@@ -33,17 +33,17 @@
 
     <div id="sello-digital">
         <div class="msg-box-red">
-            <div style="font-size: 6rem; color: #ffa500;">⚠️</div>
-            <h2 style="font-size: 2rem;">ACCESO LIMITADO</h2>
-            <p style="font-weight: bold;">Dispositivo ya registrado.</p>
-            <div style="background: #ff0000; color: white; padding: 15px; border-radius: 15px; font-weight: 900;">VOTO O CELULAR DUPLICADO</div>
+            <div style="font-size: 6rem; color: #ffa500; margin-bottom: 15px;">⚠️</div>
+            <h2 style="font-size: 2rem; margin: 0;">ACCESO LIMITADO</h2>
+            <p style="font-weight: bold; margin: 15px 0;">Dispositivo ya registrado.</p>
+            <div style="background: #ff0000; color: white; padding: 15px; border-radius: 15px; font-weight: 900;">VOTO PREVIO DETECTADO</div>
         </div>
     </div>
 
     <div id="splash">
         <div style="display:flex; gap:10px;">
-            <img src="/static/accion2.png" width="120">
-            <img src="/static/accion.png" width="120">
+            <img src="/static/accion2.png" width="120" onerror="this.style.display='none'">
+            <img src="/static/accion.png" width="120" onerror="this.style.display='none'">
         </div>
         <div class="loader-bar"><div id="bar"></div></div>
         <h2 id="pct">0%</h2>
@@ -62,7 +62,7 @@
     {% if msg_type %}
     <div class="overlay">
         <div class="box">
-            <h2 style="color:blue">{{ '¡VOTO REGISTRADO!' if msg_type == 'success' else 'DATO DUPLICADO' }}</h2>
+            <h2 style="color:blue; font-size: 1.8rem;">{{ '¡VOTO REGISTRADO!' if msg_type == 'success' else 'DATO DUPLICADO' }}</h2>
             <div class="ci-container">
                 <span class="ci-num">{{ ci }}</span>
             </div>
@@ -73,12 +73,16 @@
 
     <script>
         function checkPass() { 
-            if(prompt("CLAVE DE ACCESO:") === "2648") window.location.href="/reporte"; 
-            else alert("ERROR: CLAVE INCORRECTA"); 
+            const p = prompt("INGRESE CLAVE DE ACCESO:");
+            if(p === "2648") window.location.href="/reporte"; 
+            else if(p !== null) alert("ERROR: CLAVE INCORRECTA"); 
         }
 
         function marcarVoto(tipo) {
-            if(tipo === 'success') localStorage.setItem('voto_registrado_2026', 'true');
+            // Solo bloqueamos el dispositivo si el voto fue exitoso
+            if(tipo === 'success') {
+                localStorage.setItem('voto_registrado_2026', 'true');
+            }
         }
 
         window.onload = () => {
@@ -86,18 +90,22 @@
             const msgServer = "{{ msg_type }}";
             const modoReset = "{{ reset }}" === "true";
 
+            // Si es un reset maestro, limpiamos y recargamos
             if (modoReset) { 
                 localStorage.removeItem('voto_registrado_2026'); 
                 window.location.href = "/"; 
                 return; 
             }
 
+            // SI YA VOTÓ Y NO ESTÁ VIENDO UN MENSAJE DEL SERVIDOR, BLOQUEAR CON EL SELLO
             if (yaVoto && !msgServer) {
                 document.getElementById('splash').style.display = 'none';
                 document.getElementById('sello-digital').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'none';
                 return;
             }
 
+            // Animación de carga si no está bloqueado
             let p = 0;
             let iv = setInterval(() => {
                 p += 5;
