@@ -5,64 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONSULTA CIUDADANA</title>
     <style>
-        :root { --danger: #ff0000; --dark: #000; --gray: #f4f4f4; }
-        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', Gadget, sans-serif; background: #fff; overflow-x: hidden; }
+        :root { --danger: #ff0000; --blue: #0000ff; }
+        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', sans-serif; background: #fff; overflow-x: hidden; }
 
         /* SELLO DIGITAL - BLOQUEO TOTAL */
-        #sello { 
+        #sello-digital { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: #fff; display: none; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 100000; padding: 20px; text-align: center;
+            align-items: center; justify-content: center; z-index: 999999; padding: 20px; text-align: center;
         }
-        .msg-box-red { border: 4px solid var(--danger); padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; }
+        .msg-box-red { border: 4px solid var(--danger); padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
 
         /* SPLASH SCREEN */
-        #splash { position: fixed; top:0; left:0; width:100%; height:100%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; }
-        .splash-header { display: flex; gap: 20px; margin-bottom: 30px; }
-        .splash-header img { width: clamp(80px, 20vw, 150px); height: auto; }
-        .loader-bg { width: 250px; height: 12px; background: #eee; border-radius: 20px; overflow: hidden; }
-        .loader-fill { width: 0%; height: 100%; background: var(--dark); transition: width 0.1s; }
+        #splash { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100000; }
+        .splash-header { display: flex; gap: 20px; margin-bottom: 40px; }
+        .splash-header img { width: clamp(100px, 25vw, 150px); height: auto; }
+        .loader-container { width: 250px; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; }
+        .loader-bar { width: 0%; height: 100%; background: #000; transition: width 0.1s; }
 
-        /* CONTENIDO PRINCIPAL */
-        #main { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; box-sizing: border-box; }
-        h1 { font-size: clamp(1.8rem, 5vw, 3rem); margin: 0; text-transform: uppercase; }
-        .sub { letter-spacing: 8px; color: #666; font-size: clamp(0.9rem, 2vw, 1.2rem); margin-bottom: 40px; }
+        /* CONTENIDO PRINCIPAL RESPONSIVO */
+        #main-content { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; box-sizing: border-box; text-align: center; }
+        h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin: 0; line-height: 1; }
+        .sub-t { letter-spacing: 10px; font-weight: 900; color: #666; margin-bottom: 40px; font-size: clamp(0.8rem, 2vw, 1.2rem); }
 
-        /* GRILLA DE BOTONES */
+        /* BOTONES DE CIUDADES (GRANDES) */
         .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; width: 100%; max-width: 1000px; }
         .btn-city { 
-            background: #fff; border: 2px solid #eee; padding: 30px; border-radius: 30px; 
-            text-decoration: none; color: var(--dark); width: 300px;
+            background: #fff; border: 3px solid #f0f0f0; padding: 35px; border-radius: 35px; 
+            text-decoration: none; color: #000; font-weight: 900; 
             display: flex; flex-direction: column; align-items: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.2s;
+            width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.2s;
         }
         .btn-city:active { transform: scale(0.95); }
-        .btn-city img { width: 150px; height: 150px; object-fit: contain; margin-bottom: 20px; }
-        .btn-city span { font-size: 1.4rem; font-weight: 900; }
-
+        .btn-city img { width: 180px; height: 180px; object-fit: contain; margin-bottom: 20px; }
+        .btn-city span { font-size: 1.6rem; }
+        
         /* BOTÓN RESULTADOS */
-        .btn-res { 
-            margin-top: 50px; padding: 20px 60px; background: var(--dark); color: #fff; 
-            text-decoration: none; border-radius: 100px; font-size: 1.2rem; font-weight: 900; 
+        .btn-resultados { 
+            margin-top: 50px; padding: 20px 60px; background: #000; color: #fff; 
+            text-decoration: none; border-radius: 100px; font-size: 1.3rem; font-weight: 900; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        /* OVERLAY MENSAJES */
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); display: flex; align-items: center; justify-content: center; z-index: 110000; padding: 20px; }
-        
+        /* OVERLAYS DE RESPUESTA FLASK */
+        .flask-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); display: flex; align-items: center; justify-content: center; z-index: 500000; padding: 20px; }
+
         @media (max-width: 600px) {
-            .btn-city { width: 100%; padding: 20px; }
-            .btn-city img { width: 100px; height: 100px; }
+            .btn-city { width: 100%; padding: 25px; }
+            .btn-city img { width: 130px; height: 130px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="sello">
+    <div id="sello-digital">
         <div class="msg-box-red">
-            <h1 style="color: var(--danger); font-size: 5rem;">⚠️</h1>
-            <h2 style="color: var(--danger);">ACCESO LIMITADO</h2>
-            <p style="font-size: 1.2rem;">Se ha detectado un voto previo desde este dispositivo.</p>
-            <div style="background: var(--danger); color:#fff; padding: 20px; border-radius: 20px; font-weight: 900; margin-top: 20px;">DISPOSITIVO REGISTRADO</div>
+            <div style="font-size: 6rem; margin-bottom: 10px;">⚠️</div>
+            <h2 style="color: var(--danger); font-size: 2.2rem; margin-bottom: 15px;">ACCESO LIMITADO</h2>
+            <p style="font-weight: bold; color: #444; font-size: 1.2rem; margin-bottom: 30px;">
+                Dispositivo ya registrado en la <strong>CONSULTA CIUDADANA</strong>.
+            </p>
+            <div style="background: var(--danger); color: #fff; padding: 20px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 1.3rem;">
+                VOTO PREVIO DETECTADO
+            </div>
         </div>
     </div>
 
@@ -71,78 +76,86 @@
             <img src="/static/accion2.png" onerror="this.style.display='none'">
             <img src="/static/accion.png" onerror="this.style.display='none'">
         </div>
-        <div class="loader-bg"><div class="loader-fill" id="fill"></div></div>
-        <h2 id="load-txt">0%</h2>
+        <div class="loader-container"><div class="loader-bar" id="bar"></div></div>
+        <div style="margin-top: 15px; font-weight: 900; font-size: 2.5rem;" id="percent">0%</div>
     </div>
 
-    <div id="main">
+    <div id="main-content">
         <h1>CONSULTA CIUDADANA</h1>
-        <div class="sub">MUNICIPAL</div>
+        <div class="sub-t">MUNICIPAL 2026</div>
         
         <div class="btn-container">
             <a href="/votar/ORURO" class="btn-city">
-                <img src="/static/oruro.png" onerror="this.src='https://via.placeholder.com/150?text=ORURO'">
+                <img src="/static/oruro.png" onerror="this.src='https://via.placeholder.com/180?text=ORURO'">
                 <span>VOTAR EN: ORURO</span>
             </a>
             <a href="/votar/LA PAZ" class="btn-city">
-                <img src="/static/lapaz.png" onerror="this.src='https://via.placeholder.com/150?text=LA+PAZ'">
+                <img src="/static/lapaz.png" onerror="this.src='https://via.placeholder.com/180?text=LA+PAZ'">
                 <span>VOTAR EN: LA PAZ</span>
             </a>
         </div>
         
-        <a href="/reporte" class="btn-res">VER RESULTADOS</a>
+        <a href="/reporte" class="btn-resultados">VER RESULTADOS</a>
     </div>
 
-    {% if msg_type != '' %}
-    <div class="overlay">
-        <div class="msg-box-red" style="border-color: #eee; text-align: center;">
-            <h2 style="color: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; font-size: 2rem;">
-                {{ '¡ÉXITO!' if msg_type == 'success' else 'ATENCIÓN' }}
+    {% if msg_type and msg_type != '' %}
+    <div class="flask-overlay">
+        <div class="msg-box-red" style="border-color: #eee;">
+            <h2 style="color: {{ 'var(--blue)' if msg_type == 'success' else 'var(--danger)' }}; font-weight: 900; text-transform: uppercase; font-size: 2rem;">
+                {{ '¡Voto Registrado!' if msg_type == 'success' else 'Atención' }}
             </h2>
-            <div style="background: {{ '#0000ff' if msg_type == 'success' else '#ff0000' }}; color:#fff; padding: 25px; border-radius: 25px; font-size: 2.5rem; margin: 20px 0;">
-                {{ ci }}
+            <div style="background: {{ 'var(--blue)' if msg_type == 'success' else 'var(--danger)' }}; color:#fff; padding: 25px; border-radius: 25px; font-size: 2.8rem; font-weight: 900; margin: 30px 0; border: 5px solid rgba(0,0,0,0.1);">
+                {{ ci_votante }}
             </div>
-            <a href="/" onclick="setVoto('{{ msg_type }}')" style="display:block; background:#000; color:#fff; padding:20px; border-radius:15px; text-decoration:none; font-weight:900;">CONTINUAR</a>
+            <a href="/" onclick="marcarLocal('{{ msg_type }}')" style="display: block; padding: 22px; background: #000; color: #fff; text-decoration: none; border-radius: 20px; font-weight: 900; font-size: 1.3rem;">CONTINUAR</a>
         </div>
     </div>
     {% endif %}
 
     <script>
-        function setVoto(t) { if(t === 'success') localStorage.setItem('voto_2026_final', '1'); }
+        // Función para guardar el voto en el navegador
+        function marcarLocal(tipo) {
+            if(tipo === 'success') { 
+                localStorage.setItem('voto_registrado_2026', 'true'); 
+            }
+        }
 
         window.onload = () => {
-            // Manejo de Reset
-            if ("{{ reset }}" === "true") {
-                localStorage.removeItem('voto_2026_final');
+            const haVotado = localStorage.getItem('voto_registrado_2026') === 'true';
+            const msgServer = "{{ msg_type }}";
+            const esReset = "{{ reset }}" === "true";
+
+            // Si es un reset desde la Clave Maestra
+            if (esReset) {
+                localStorage.removeItem('voto_registrado_2026');
                 window.location.href = "/";
                 return;
             }
 
-            // Validación Sello Digital
-            const yaVoto = localStorage.getItem('voto_2026_final') === '1';
-            const msgServer = "{{ msg_type }}";
-
-            if (yaVoto && msgServer === "") {
+            // Si ya votó y no hay un mensaje nuevo del servidor, mostrar Sello
+            if (haVotado && (!msgServer || msgServer === '')) {
                 document.getElementById('splash').style.display = 'none';
-                document.getElementById('sello').style.display = 'flex';
+                document.getElementById('sello-digital').style.display = 'flex';
                 return;
             }
 
-            // Animación de Carga
+            // Animación de Carga del Splash
             let p = 0;
-            const fill = document.getElementById('fill');
-            const txt = document.getElementById('load-txt');
+            const bar = document.getElementById('bar');
+            const pct = document.getElementById('percent');
+            
             const interval = setInterval(() => {
                 p += 5;
                 if(p > 100) p = 100;
-                fill.style.width = p + '%';
-                txt.innerText = p + '%';
+                bar.style.width = p + '%';
+                pct.innerText = p + '%';
+
                 if(p >= 100) {
                     clearInterval(interval);
                     document.getElementById('splash').style.display = 'none';
-                    document.getElementById('main').style.display = 'flex';
+                    document.getElementById('main-content').style.display = 'flex';
                 }
-            }, 40);
+            }, 50);
         };
     </script>
 </body>
