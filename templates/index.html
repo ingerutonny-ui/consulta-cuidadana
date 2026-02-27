@@ -100,20 +100,21 @@
 
     {% if msg_type and msg_type != '' %}
     <div class="flask-overlay">
-        <div class="msg-box-red" style="border-color: #eee;">
+        <div class="msg-box-red" style="border-color: #eee; text-align: center; display: flex; flex-direction: column; align-items: center;">
             <h2 style="color: {{ 'var(--blue)' if msg_type == 'success' else 'var(--danger)' }}; font-weight: 900; text-transform: uppercase; font-size: 2rem;">
                 {{ '¡Voto Registrado!' if msg_type == 'success' else 'Atención' }}
             </h2>
-            <div style="background: {{ 'var(--blue)' if msg_type == 'success' else 'var(--danger)' }}; color: white; padding: 25px; border-radius: 25px; font-size: 2.8rem; font-weight: 900; margin: 30px 0; border: 5px solid rgba(0,0,0,0.1);">
+            
+            <div style="background: {{ 'var(--blue)' if msg_type == 'success' else 'var(--danger)' }}; color: white; padding: 25px; border-radius: 25px; font-size: 2.8rem; font-weight: 900; margin: 30px auto; width: 90%; text-align: center; display: block; box-sizing: border-box;">
                 {{ ci_votante }}
             </div>
-            <a href="/" onclick="marcarLocal('{{ msg_type }}')" style="display: block; padding: 22px; background: #000; color: #fff; text-decoration: none; border-radius: 20px; font-weight: 900; font-size: 1.3rem;">CONTINUAR</a>
+
+            <a href="/" onclick="marcarLocal('{{ msg_type }}')" style="display: block; width: 100%; padding: 22px; background: #000; color: #fff; text-decoration: none; border-radius: 20px; font-weight: 900; font-size: 1.3rem; box-sizing: border-box;">CONTINUAR</a>
         </div>
     </div>
     {% endif %}
 
     <script>
-        // Función para guardar el voto en el navegador
         function marcarLocal(tipo) {
             if(tipo === 'success') { 
                 localStorage.setItem('voto_registrado_2026', 'true'); 
@@ -125,21 +126,18 @@
             const msgServer = "{{ msg_type }}";
             const esReset = "{{ reset }}" === "true";
 
-            // Si es un reset desde la Clave Maestra
             if (esReset) {
                 localStorage.removeItem('voto_registrado_2026');
                 window.location.href = "/";
                 return;
             }
 
-            // Si ya votó y no hay un mensaje nuevo del servidor, mostrar Sello
             if (haVotado && (!msgServer || msgServer === '')) {
                 document.getElementById('splash').style.display = 'none';
                 document.getElementById('sello-digital').style.display = 'flex';
                 return;
             }
 
-            // Animación de Carga del Splash
             let p = 0;
             const bar = document.getElementById('bar');
             const pct = document.getElementById('percent');
