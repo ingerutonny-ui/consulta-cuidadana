@@ -71,12 +71,11 @@ def obtener_partidos(ciudad):
 
 @app.route('/')
 def index():
-    # Aseguramos que el reset se pase correctamente como string para JS
-    reset_val = "true" if request.args.get('reset') == 'true' else "false"
-    return render_template('index.html', 
-                           msg_type=request.args.get('msg_type'), 
-                           ci_votante=request.args.get('ci'),
-                           reset=reset_val)
+    # Limpiamos los valores para que el JS no reciba "None"
+    m_type = request.args.get('msg_type', '')
+    ci_v = request.args.get('ci', '')
+    reset_v = request.args.get('reset', '')
+    return render_template('index.html', msg_type=m_type, ci_votante=ci_v, reset=reset_v)
 
 @app.route('/votar/<ciudad>')
 def votar(ciudad):
