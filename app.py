@@ -54,7 +54,8 @@ def obtener_partidos(ciudad):
         {"id": 11, "nombre": "LIBRE", "alcalde": "RENE BENJAMIN GUZMAN VARGAS"},
         {"id": 12, "nombre": "PP", "alcalde": "CARLOS AGUILAR"},
         {"id": 13, "nombre": "SOMOS ORURO", "alcalde": "MARCELO CORTEZ GUTIERREZ"},
-        {"id": 14, "nombre": "JACHA", "alcalde": "MARCELO FERNANDO MEDINA CENTELLAS"}
+        {"id": 14, "nombre": "JACHA", "alcalde": "MARCELO FERNANDO MEDINA CENTELLAS"},
+        {"id": 15, "nombre": "MCS", "alcalde": "EDGAR RAFAEL BAZÁN ORTEGA"}
     ]
 
 @app.route('/')
