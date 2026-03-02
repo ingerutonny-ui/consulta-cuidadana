@@ -11,10 +11,11 @@
         #sello-digital { position: fixed; inset:0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; text-align: center; }
         .msg-box-red { border: 5px solid #ff0000; padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; }
 
-        /* CARGA */
+        /* CARGA PERSONALIZADA */
         #splash { position: fixed; inset:0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         .loader-bar { width: 280px; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; margin: 20px 0; }
-        #bar { width: 0%; height: 100%; background: #000; transition: width 0.3s; }
+        #bar { width: 0%; height: 100%; background: #000; transition: width 0.1s; }
+        #logo-splash { width: 180px; margin-bottom: 20px; }
 
         /* PRINCIPAL */
         #main-content { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 20px; }
@@ -28,7 +29,6 @@
         .ci-container { background: #0000FF !important; padding: 25px; border-radius: 20px; margin: 20px 0; }
         .ci-num { color: #FFFFFF !important; font-size: 3.2rem; font-weight: 900; -webkit-text-fill-color: white !important; }
 
-        /* DISEÑO DE FRASES SOLICITADO */
         .container-frase { margin-top: 25px; line-height: 1.4; }
         .frase-roja { color: #ff0000; font-size: 0.85rem; font-weight: 900; display: block; margin-bottom: 8px; }
         .frase-azul { color: #0000ff; font-size: 0.7rem; font-weight: 400; display: block; }
@@ -45,10 +45,7 @@
     </div>
 
     <div id="splash">
-        <div style="display:flex; gap:10px;">
-            <img src="/static/accion2.png" width="120" onerror="this.style.display='none'">
-            <img src="/static/accion.png" width="120" onerror="this.style.display='none'">
-        </div>
+        <img src="/static/logo.png" id="logo-splash" alt="Logo">
         <div class="loader-bar"><div id="bar"></div></div>
         <h2 id="pct" style="font-size: 2rem;">0%</h2>
     </div>
@@ -79,26 +76,23 @@
     {% endif %}
 
     <script>
-        // Lógica unificada para evitar bucles de carga
         const urlParams = new URLSearchParams(window.location.search);
         const yaVoto = localStorage.getItem('voto_registrado_2026') === 'true';
         const tieneMsg = urlParams.has('msg_type');
 
-        // 1. Manejo de LLAVE MAESTRA
         if (urlParams.get('reset') === 'true') {
             localStorage.removeItem('voto_registrado_2026');
             window.location.href = "/";
         } 
-        // 2. Manejo de BLOQUEO
         else if (yaVoto && !tieneMsg) {
             document.getElementById('sello-digital').style.display = 'flex';
             document.getElementById('splash').style.display = 'none';
         } 
-        // 3. Manejo de CARGA NORMAL
         else {
             let p = 0;
+            // Para 4 segundos (4000ms) subiendo de 1 en 1 cada 40ms
             let iv = setInterval(() => {
-                p += 10;
+                p++;
                 document.getElementById('bar').style.width = p+'%';
                 document.getElementById('pct').innerText = p+'%';
                 if(p >= 100) { 
@@ -106,7 +100,7 @@
                     document.getElementById('splash').style.display='none'; 
                     document.getElementById('main-content').style.display='flex'; 
                 }
-            }, 30);
+            }, 40); 
         }
 
         function checkPass() { 
