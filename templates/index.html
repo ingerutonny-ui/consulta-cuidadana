@@ -5,33 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CONSULTA CIUDADANA</title>
     <style>
-        body, html { margin:0; padding:0; width:100%; height:100%; font-family: 'Arial Black', sans-serif; background: #fff; }
+        /* BASE NANCY ELEGANTE - ESCALADO 130% */
+        body, html { 
+            margin:0; padding:0; width:100%; height:100%; 
+            font-family: 'Arial Black', sans-serif; 
+            background: #fff; 
+            overflow-x: hidden;
+        }
         
         /* BLOQUEO */
-        #sello-digital { position: fixed; inset:0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; text-align: center; }
-        .msg-box-red { border: 5px solid #ff0000; padding: 40px; border-radius: 40px; max-width: 500px; width: 90%; }
+        #sello-digital { 
+            position: fixed; inset:0; background: #fff; 
+            display: none; flex-direction: column; align-items: center; 
+            justify-content: center; z-index: 99999; text-align: center; 
+        }
+        .msg-box-red { 
+            border: 8px solid #ff0000; padding: 40px; border-radius: 40px; 
+            max-width: 500px; width: 85%; 
+        }
 
         /* CARGA PERSONALIZADA */
-        #splash { position: fixed; inset:0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
-        .loader-bar { width: 280px; height: 12px; background: #eee; border-radius: 10px; overflow: hidden; margin: 20px 0; }
+        #splash { 
+            position: fixed; inset:0; background: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; z-index: 10000; 
+        }
+        .loader-bar { 
+            width: 70%; max-width: 400px; height: 15px; 
+            background: #eee; border-radius: 20px; overflow: hidden; margin: 25px 0; 
+        }
         #bar { width: 0%; height: 100%; background: #000; transition: width 0.1s; }
-        #logo-splash { width: 180px; margin-bottom: 20px; }
+        #logo-splash { width: 220px; margin-bottom: 25px; }
 
-        /* PRINCIPAL */
-        #main-content { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 20px; }
-        .btn-city { border: 2px solid #f0f0f0; padding: 25px; border-radius: 30px; text-decoration: none; color: #000; display: inline-block; margin: 15px; width: 280px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .btn-city img { width: 150px; display: block; margin: 0 auto 10px; }
-        .btn-res { background: #000; color: #fff; border: none; padding: 18px 60px; border-radius: 50px; font-weight: 900; cursor: pointer; margin-top: 20px; font-size: 1.2rem; }
+        /* PRINCIPAL RESPONSIVO */
+        #main-content { 
+            display: none; flex-direction: column; align-items: center; 
+            justify-content: center; min-height: 100vh; text-align: center; 
+            padding: 20px; box-sizing: border-box;
+        }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 0; }
+        .sub-t { letter-spacing: 5px; color: #888; font-weight: 900; font-size: 1.1rem; margin-bottom: 40px; }
 
-        /* ÉXITO */
-        .overlay { position: fixed; inset:0; background: rgba(255,255,255,0.98); display: flex; align-items: center; justify-content: center; z-index: 50000; }
-        .box { border: 2px solid #eee; padding: 40px; border-radius: 40px; width: 90%; max-width: 550px; text-align: center; background: #fff; }
-        .ci-container { background: #0000FF !important; padding: 25px; border-radius: 20px; margin: 20px 0; }
-        .ci-num { color: #FFFFFF !important; font-size: 3.2rem; font-weight: 900; -webkit-text-fill-color: white !important; }
+        .btn-city-container { 
+            display: flex; flex-wrap: wrap; justify-content: center; 
+            gap: 20px; width: 100%; max-width: 900px;
+        }
 
-        .container-frase { margin-top: 25px; line-height: 1.4; }
-        .frase-roja { color: #ff0000; font-size: 0.85rem; font-weight: 900; display: block; margin-bottom: 8px; }
-        .frase-azul { color: #0000ff; font-size: 0.7rem; font-weight: 400; display: block; }
+        .btn-city { 
+            border: 2px solid #f0f0f0; padding: 30px 15px; border-radius: 35px; 
+            text-decoration: none; color: #000; display: flex; flex-direction: column;
+            align-items: center; width: 80%; max-width: 320px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+        .btn-city:active { transform: scale(0.95); }
+        .btn-city img { width: 180px; height: auto; margin-bottom: 15px; }
+
+        .btn-res { 
+            background: #000; color: #fff; border: none; 
+            padding: 22px 70px; border-radius: 60px; font-weight: 900; 
+            cursor: pointer; margin-top: 50px; font-size: 1.3rem; 
+            width: 85%; max-width: 400px;
+        }
+
+        /* OVERLAY ÉXITO / ERROR */
+        .overlay { 
+            position: fixed; inset:0; background: rgba(255,255,255,0.98); 
+            display: flex; align-items: center; justify-content: center; z-index: 50000; 
+        }
+        .box { 
+            border: 3px solid #eee; padding: 40px 20px; border-radius: 50px; 
+            width: 90%; max-width: 600px; text-align: center; background: #fff; 
+        }
+        .ci-container { background: #0000FF !important; padding: 30px; border-radius: 25px; margin: 25px 0; }
+        .ci-num { color: #FFFFFF !important; font-size: 3.5rem; font-weight: 900; display: block; }
+
+        .container-frase { margin-top: 30px; padding: 0 10px; }
+        .frase-roja { color: #ff0000; font-size: 0.95rem; font-weight: 900; display: block; margin-bottom: 10px; }
+        .frase-azul { color: #0000ff; font-size: 0.8rem; font-weight: 400; display: block; }
+
+        /* AJUSTES PARA PC */
+        @media (min-width: 768px) {
+            .btn-city { width: 350px; }
+            .btn-res { width: auto; }
+            h1 { font-size: 3.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -40,19 +99,19 @@
         <div class="msg-box-red">
             <div style="font-size: 6rem; color: #ffa500; margin-bottom: 10px;">⚠️</div>
             <h2 style="font-size: 2.2rem; margin: 10px 0;">ACCESO LIMITADO</h2>
-            <div style="background: #ff0000; color: white; padding: 20px; border-radius: 15px; font-weight: 900;">VOTO PREVIO DETECTADO</div>
+            <div style="background: #ff0000; color: white; padding: 25px; border-radius: 20px; font-weight: 900; font-size: 1.2rem;">VOTO PREVIO DETECTADO</div>
         </div>
     </div>
 
     <div id="splash">
         <img src="/static/logo.png" id="logo-splash" alt="Logo">
         <div class="loader-bar"><div id="bar"></div></div>
-        <h2 id="pct" style="font-size: 2rem;">0%</h2>
+        <h2 id="pct" style="font-size: 2.5rem;">0%</h2>
     </div>
 
     <div id="main-content">
         <h1>CONSULTA CIUDADANA</h1>
-        <p style="letter-spacing: 5px; color: #888; font-weight: 900;">MUNICIPAL 2026</p>
+        <p class="sub-t">MUNICIPAL 2026</p>
         <div class="btn-city-container">
             <a href="/votar/ORURO" class="btn-city"><img src="/static/oruro.png">VOTAR EN: ORURO</a>
             <a href="/votar/LA PAZ" class="btn-city"><img src="/static/lapaz.png">VOTAR EN: LA PAZ</a>
@@ -63,9 +122,9 @@
     {% if msg_type %}
     <div class="overlay">
         <div class="box">
-            <h2 style="color:blue; font-size: 1.8rem;">{{ '¡SE REGISTRARÁ SU VOTO!' if msg_type == 'success' else 'DATO DUPLICADO' }}</h2>
+            <h2 style="color:blue; font-size: 2rem;">{{ '¡SE REGISTRARÁ SU VOTO!' if msg_type == 'success' else 'DATO DUPLICADO' }}</h2>
             <div class="ci-container"><span class="ci-num">{{ ci }}</span></div>
-            <a href="/" onclick="marcarVoto('{{ msg_type }}')" style="display:block; background:#000; color:#fff; padding:20px; border-radius:20px; text-decoration:none; font-weight: 900;">CONTINUAR</a>
+            <a href="/" onclick="marcarVoto('{{ msg_type }}')" style="display:block; background:#000; color:#fff; padding:25px; border-radius:25px; text-decoration:none; font-weight: 900; font-size: 1.3rem;">CONTINUAR</a>
             
             <div class="container-frase">
                 <span class="frase-roja">POR SEGURIDAD, ESTE ACCESO QUEDA DESHABILITADO PARA NUEVOS VOTOS.</span>
@@ -90,7 +149,6 @@
         } 
         else {
             let p = 0;
-            // Para 4 segundos (4000ms) subiendo de 1 en 1 cada 40ms
             let iv = setInterval(() => {
                 p++;
                 document.getElementById('bar').style.width = p+'%';
@@ -100,12 +158,13 @@
                     document.getElementById('splash').style.display='none'; 
                     document.getElementById('main-content').style.display='flex'; 
                 }
-            }, 40); 
+            }, 30); 
         }
 
         function checkPass() { 
-            if(prompt("INGRESE CLAVE DE ACCESO:") === "2648") window.location.href="/reporte"; 
-            else alert("ERROR: CLAVE INCORRECTA"); 
+            let pass = prompt("INGRESE CLAVE DE ACCESO:");
+            if(pass === "2648") window.location.href="/reporte"; 
+            else if(pass !== null) alert("ERROR: CLAVE INCORRECTA"); 
         }
 
         function marcarVoto(tipo) {
