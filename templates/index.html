@@ -85,7 +85,6 @@
         .frase-roja { color: #ff0000; font-size: 0.95rem; font-weight: 900; display: block; margin-bottom: 10px; }
         .frase-azul { color: #0000ff; font-size: 0.8rem; font-weight: 400; display: block; }
 
-        /* AJUSTES PARA PC */
         @media (min-width: 768px) {
             .btn-city { width: 350px; }
             .btn-res { width: auto; }
@@ -135,6 +134,7 @@
     {% endif %}
 
     <script>
+        const CLAVE_VALIDA = "2648";
         const urlParams = new URLSearchParams(window.location.search);
         const yaVoto = localStorage.getItem('voto_2026') === 'true';
         const tieneMsg = urlParams.has('msg_type');
@@ -155,15 +155,25 @@
                 document.getElementById('pct').innerText = p+'%';
                 if(p >= 100) { 
                     clearInterval(iv); 
-                    document.getElementById('splash').style.display='none'; 
-                    document.getElementById('main-content').style.display='flex'; 
+                    solicitarAcceso();
                 }
             }, 30); 
         }
 
+        function solicitarAcceso() {
+            let pass = prompt("SISTEMA BLOQUEADO. INGRESE CLAVE DE ACCESO:");
+            if(pass === CLAVE_VALIDA) {
+                document.getElementById('splash').style.display='none'; 
+                document.getElementById('main-content').style.display='flex';
+            } else {
+                alert("ERROR: CLAVE INCORRECTA. REINTENTANDO...");
+                window.location.reload();
+            }
+        }
+
         function checkPass() { 
             let pass = prompt("INGRESE CLAVE DE ACCESO:");
-            if(pass === "2648") window.location.href="/reporte"; 
+            if(pass === CLAVE_VALIDA) window.location.href="/reporte"; 
             else if(pass !== null) alert("ERROR: CLAVE INCORRECTA"); 
         }
 
